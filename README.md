@@ -56,3 +56,119 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+app/
+├── Enums/
+│   ├── StatusPermohonan.php
+│   ├── StatusMagang.php
+│   ├── StatusPresensi.php
+│   ├── StatusLogbook.php
+│   └── StatusPerizinan.php
+├── Http/
+│   ├── Controllers/
+│   │   ├── Controller.php
+│   │   ├── Auth/ (Breeze)
+│   │   ├── Public/HomeController.php
+│   │   ├── Pendaftar/
+│   │   ├── Mahasiswa/
+│   │   ├── Admin/
+│   │   └── SuperUser/
+│   ├── Middleware/
+│   │   └── RoleMiddleware.php
+│   └── Requests/
+│       ├── Pendaftar/
+│       ├── Mahasiswa/
+│       ├── Admin/
+│       └── SuperUser/
+├── Models/
+│   ├── User.php
+│   ├── MahasiswaProfile.php
+│   ├── PermohonanMagang.php
+│   ├── PermohonanDokumen.php
+│   ├── Magang.php
+│   ├── Presensi.php
+│   ├── Logbook.php
+│   ├── Perizinan.php
+│   └── Pengaturan.php
+├── Policies/
+│   ├── PermohonanPolicy.php
+│   ├── PresensiPolicy.php
+│   ├── LogbookPolicy.php
+│   └── PerizinanPolicy.php
+├── Providers/
+│   └── AppServiceProvider.php
+└── Services/
+    ├── PermohonanService.php
+    ├── PresensiService.php
+    ├── LogbookService.php
+    ├── PerizinanService.php
+    └── PengaturanService.php
+
+bootstrap/
+└── app.php                       // daftarkan middleware alias 'role'
+
+database/
+├── factories/
+│   ├── UserFactory.php
+│   ├── PermohonanMagangFactory.php
+│   ├── PresensiFactory.php
+│   ├── LogbookFactory.php
+│   └── PerizinanFactory.php
+├── migrations/
+│   ├── ... (bawaan)
+│   ├── ... (spatie permission)
+│   ├── ..._create_mahasiswa_profiles_table.php
+│   ├── ..._create_permohonan_magangs_table.php
+│   ├── ..._create_permohonan_dokumens_table.php
+│   ├── ..._create_magangs_table.php
+│   ├── ..._create_presensis_table.php
+│   ├── ..._create_logbooks_table.php
+│   ├── ..._create_perizinans_table.php
+│   └── ..._create_pengaturans_table.php
+└── seeders/
+    ├── DatabaseSeeder.php
+    ├── RoleSeeder.php
+    ├── SuperUserSeeder.php
+    ├── PengaturanSeeder.php
+    └── AdminSeeder.php
+
+resources/
+├── css/app.css
+├── js/app.js
+└── views/
+    ├── public/
+    │   ├── home.blade.php
+    │   └── alur.blade.php
+    ├── layouts/
+    │   ├── app.blade.php
+    │   ├── guest.blade.php
+    │   ├── pendaftar.blade.php
+    │   ├── mahasiswa.blade.php
+    │   ├── admin.blade.php
+    │   └── superuser.blade.php
+    ├── components/
+    │   ├── ... (Breeze)
+    │   ├── sidebar-pendaftar.blade.php
+    │   ├── sidebar-mahasiswa.blade.php
+    │   ├── sidebar-admin.blade.php
+    │   ├── sidebar-superuser.blade.php
+    │   └── alert.blade.php
+    ├── auth/ (Breeze)
+    ├── pendaftar/
+    ├── mahasiswa/
+    ├── admin/
+    └── superuser/
+
+routes/
+├── web.php
+├── auth.php
+├── pendaftar.php
+├── mahasiswa.php
+├── admin.php
+├── superuser.php
+└── console.php
+
+config/
+└── app.php                       // timezone
