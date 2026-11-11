@@ -12,8 +12,8 @@ class PengaturanSeeder extends Seeder
         // Koordinat & radius kantor BPS Kota Surabaya
         // Silakan super user update via panel pengaturan bila perlu
         Pengaturan::set('kantor.nama',      'BPS Kota Surabaya', 'string', 'kantor');
-        Pengaturan::set('kantor.lat',       '-7.2863000',        'float',  'kantor');
-        Pengaturan::set('kantor.lng',       '112.7358000',       'float',  'kantor');
+        Pengaturan::set('kantor.lat',       '-7.3283024',        'float',  'kantor');
+        Pengaturan::set('kantor.lng',       '112.7258666',       'float',  'kantor');
         Pengaturan::set('kantor.radius_m',  '1000',              'int',    'kantor');
 
         // Jam kerja default

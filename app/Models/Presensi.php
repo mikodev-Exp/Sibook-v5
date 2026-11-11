@@ -21,6 +21,10 @@ class Presensi extends Model
         'jarak_pulang_m',
         'status',
         'keterangan',
+        'tipe_presensi',
+        'foto',
+        'alasan_luar',
+        'status_verifikasi'
     ];
 
     protected function casts(): array
