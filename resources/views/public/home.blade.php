@@ -31,7 +31,7 @@
                         Login
                     </a>
                     <a href="{{ route('register') }}" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm">
-                        Daftar Magang
+                        Registrasi
                     </a>
                 @endauth
             </nav>
@@ -58,12 +58,12 @@
                         </p>
                         <div class="flex flex-col sm:flex-row gap-4">
                             @guest
-                                <a href="{{ route('register') }}" class="px-8 py-3.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-semibold text-center shadow-lg hover:shadow-xl">
+                                <a href="{{ route('pendaftar.register') }}" class="px-8 py-3.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-semibold text-center shadow-lg hover:shadow-xl">
                                     Ajukan Permohonan Sekarang
                                 </a>
                             @endguest
-                            <a href="#alur" class="px-8 py-3.5 bg-white text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-all font-semibold text-center">
-                                Lihat Alur Pendaftaran
+                            <a href="{{ auth()->check() ? route('dashboard') : route('login') }}" class="px-8 py-3.5 bg-white text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-all font-semibold text-center">
+                                Lihat Status Pendaftaran
                             </a>
                         </div>
                     </div>

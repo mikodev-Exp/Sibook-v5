@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('presensis', function (Blueprint $table) {
-           $table->string('status_verifikasi')->nullable();
+        Schema::table('mahasiswa_profiles', function (Blueprint $table) {
+            $table->string('program_studi')->nullable()->after('universitas');
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('presensis', function (Blueprint $table) {
-            $table->dropColumn('status_verifikasi');
+        Schema::table('mahasiswa_profiles', function (Blueprint $table) {
+            $table->dropColumn('program_studi');
         });
     }
 };

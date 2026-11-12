@@ -8,12 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class MahasiswaProfile extends Model
 {
     protected $fillable = [
-        'user_id',
-        'nim',
-        'universitas',
-        'jurusan',
-        'no_hp',
-        'angkatan',
+        'user_id', 'nim', 'universitas', 'jurusan', 'no_hp', 'angkatan',
+        'jenis_kelamin', 'link_pasfoto', 'username_ig', 'status_konversi', 'device', 'punya_bpjs'
     ];
 
     public function user(): BelongsTo
