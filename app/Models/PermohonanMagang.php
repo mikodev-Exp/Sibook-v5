@@ -20,6 +20,9 @@ class PermohonanMagang extends Model
         'reviewed_at',
         'approved_by',
         'approved_at',
+        'status_ujian_esai', 
+        'status_ujian_tulis', 
+        'status_interview',
     ];
 
     protected function casts(): array

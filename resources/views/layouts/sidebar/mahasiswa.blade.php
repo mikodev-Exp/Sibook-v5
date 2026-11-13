@@ -16,7 +16,8 @@
         </a>
         
         <!-- Menu Logbook -->
-        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">
+        <a href="{{ route('mahasiswa.logbook.index') }}"
+            class="block px-4 py-2 rounded {{ request()->routeIs('mahasiswa.logbook.*') ? 'bg-indigo-600 text-white' : 'hover:bg-gray-700' }}">
             Logbook
         </a>
         

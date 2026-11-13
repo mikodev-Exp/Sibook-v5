@@ -10,6 +10,8 @@
 
     <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            
+            <!-- Header Status -->
             <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">Status Pendaftaran</h2>
@@ -30,6 +32,7 @@
                 </div>
             </div>
 
+            <!-- Konten Utama -->
             <div class="p-6">
                 @if(!$permohonan)
                     <div class="text-center py-10">
@@ -37,6 +40,8 @@
                         <a href="{{ route('pendaftar.register') }}" class="px-6 py-2 bg-indigo-600 text-white rounded-lg">Ajukan Sekarang</a>
                     </div>
                 @else
+                    
+                    <!-- Data Diri & Detail Pengajuan -->
                     <div class="grid md:grid-cols-2 gap-6">
                         <!-- Data Diri -->
                         <div>
@@ -46,7 +51,7 @@
                                 <li class="flex justify-between"><span class="text-gray-500">Email</span> <span class="font-medium text-right">{{ $user->email }}</span></li>
                                 <li class="flex justify-between"><span class="text-gray-500">No. HP</span> <span class="font-medium text-right">{{ $user->mahasiswaProfile->no_hp ?? '-' }}</span></li>
                                 <li class="flex justify-between"><span class="text-gray-500">Universitas</span> <span class="font-medium text-right">{{ $user->mahasiswaProfile->universitas ?? '-' }}</span></li>
-                                <li class="flex justify-between"><span class="text-gray-500">Universitas</span> <span class="font-medium text-right">{{ $user->mahasiswaProfile->universitas ?? '-' }}</span></li>
+                                <li class="flex justify-between"><span class="text-gray-500">Program Studi</span> <span class="font-medium text-right">{{ $user->mahasiswaProfile->program_studi ?? '-' }}</span></li>
                                 <li class="flex justify-between"><span class="text-gray-500">Instagram</span> <span class="font-medium text-right">{{ $user->mahasiswaProfile->username_ig ?? '-' }}</span></li>
                             </ul>
                         </div>
@@ -64,6 +69,50 @@
                         </div>
                     </div>
 
+                    <!-- BAGIAN BARU: Status Ujian Kompetensi -->
+                    <div class="mt-8 border-t pt-6">
+                        <h3 class="font-bold text-gray-800 mb-4">Status Ujian Kompetensi</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Ujian Esai -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <span class="text-sm font-medium text-gray-700">Ujian Esai</span>
+                                @if($permohonan->status_ujian_esai === 'lulus')
+                                    <span class="text-green-500 font-bold text-lg" title="Lulus">✅</span>
+                                @elseif($permohonan->status_ujian_esai === 'gagal')
+                                    <span class="text-red-500 font-bold text-lg" title="Gagal">❌</span>
+                                @else
+                                    <span class="text-gray-400 text-xs font-semibold bg-gray-200 px-2 py-1 rounded">Pending</span>
+                                @endif
+                            </div>
+
+                            <!-- Ujian Tulis -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <span class="text-sm font-medium text-gray-700">Ujian Tulis</span>
+                                @if($permohonan->status_ujian_tulis === 'lulus')
+                                    <span class="text-green-500 font-bold text-lg" title="Lulus">✅</span>
+                                @elseif($permohonan->status_ujian_tulis === 'gagal')
+                                    <span class="text-red-500 font-bold text-lg" title="Gagal">❌</span>
+                                @else
+                                    <span class="text-gray-400 text-xs font-semibold bg-gray-200 px-2 py-1 rounded">Pending</span>
+                                @endif
+                            </div>
+
+                            <!-- Interview -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <span class="text-sm font-medium text-gray-700">Interview</span>
+                                @if($permohonan->status_interview === 'lulus')
+                                    <span class="text-green-500 font-bold text-lg" title="Lulus">✅</span>
+                                @elseif($permohonan->status_interview === 'gagal')
+                                    <span class="text-red-500 font-bold text-lg" title="Gagal">❌</span>
+                                @else
+                                    <span class="text-gray-400 text-xs font-semibold bg-gray-200 px-2 py-1 rounded">Pending</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END BAGIAN BARU -->
+
+                    <!-- Pesan Tambahan (Menunggu / Ditolak) -->
                     @if($permohonan->status === 'submitted' || $permohonan->status === 'reviewed_by_admin')
                         <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
                             <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

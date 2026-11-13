@@ -94,9 +94,10 @@ class PresensiController extends Controller
         }
 
         // Hitung Jarak
-        $kantorLat = (float) Pengaturan::get('kantor.lat');
-        $kantorLng = (float) Pengaturan::get('kantor.lng');
-        $radius = (int) Pengaturan::get('kantor.radius_m');
+        // Angka di belakang koma adalah nilai default jika database kosong
+        $kantorLat = (float) Pengaturan::get('kantor.lat', -7.2863000);
+        $kantorLng = (float) Pengaturan::get('kantor.lng', 112.7358000);
+        $radius = (int) Pengaturan::get('kantor.radius_m', 1000);
         $jarak = $this->hitungJarak($request->lat, $request->lng, $kantorLat, $kantorLng);
 
         if ($jarak > $radius) {

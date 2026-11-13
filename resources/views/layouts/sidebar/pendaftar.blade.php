@@ -10,8 +10,9 @@
         </a>
         
         <!-- Menu Permohonan Magang -->
-        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">
-            Permohonan Magang
+        <a href="{{ route('pendaftar.ujian.index') }}"
+            class="block px-4 py-2 rounded {{ request()->routeIs('pendaftar.ujian.*') ? 'bg-indigo-600 text-white' : 'hover:bg-gray-700' }}">
+            Ujian Kompetensi
         </a>
     </nav>
 </aside>

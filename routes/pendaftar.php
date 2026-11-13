@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Pendaftar\UjianController;
 use App\Http\Controllers\Pendaftar\DashboardController;
 use App\Http\Controllers\Pendaftar\RegisterController; // <-- Tambahkan ini
 use Illuminate\Support\Facades\Route;
@@ -14,4 +15,5 @@ Route::middleware(['auth', 'verified', 'role:pendaftar'])
     ->name('pendaftar.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/ujian', [UjianController::class, 'index'])->name('ujian.index');
     });
