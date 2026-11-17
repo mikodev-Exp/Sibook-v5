@@ -21,7 +21,7 @@
     <div id="logbook-table-container"
          data-async-container
          @click="SiBookAsync.handleClick($event, 'logbook-table-container')"
-         class="bg-white rounded-2xl border border-[#E5E7EB] shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden">
+         class="bg-white rounded-2xl border border-[#E5E7EB] shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col min-h-[580px] lg:min-h-[calc(100vh-220px)]">
         
         {{-- Toolbar Atas (Search & Filter di Kanan) --}}
         <div class="p-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-[#F0F2F5]">
@@ -145,7 +145,7 @@
         </div>
 
         {{-- Tabel Logbook --}}
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto flex-1">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b border-[#F0F2F5] text-[13px] font-bold text-[#111827] bg-white select-none">
@@ -281,19 +281,23 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
-        @if($logbooks->hasPages())
-            <div class="px-6 py-4 border-t border-[#F0F2F5] flex items-center justify-between">
-                <div class="text-xs text-gray-500">
+        {{-- Footer Informasi & Pagination --}}
+        <div class="mt-auto px-6 py-4 border-t border-[#F0F2F5] flex flex-col sm:flex-row items-center justify-between gap-2 bg-gray-50/40">
+            <div class="text-xs text-gray-500">
+                @if($logbooks->total() > 0)
                     Menampilkan <span class="font-semibold text-gray-700">{{ $logbooks->firstItem() }}</span> - 
                     <span class="font-semibold text-gray-700">{{ $logbooks->lastItem() }}</span> dari 
                     <span class="font-semibold text-gray-700">{{ $logbooks->total() }}</span> logbook
-                </div>
+                @else
+                    Tidak ada data logbook
+                @endif
+            </div>
+            @if($logbooks->hasPages())
                 <div>
                     {{ $logbooks->links() }}
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 
     {{-- Detail Modal --}}

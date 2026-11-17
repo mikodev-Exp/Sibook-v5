@@ -23,7 +23,7 @@
     <div id="presensi-table-container"
          data-async-container
          @click="SiBookAsync.handleClick($event, 'presensi-table-container')"
-         class="bg-white rounded-2xl border border-gray-150 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
+         class="bg-white rounded-2xl border border-gray-150 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col min-h-[580px] lg:min-h-[calc(100vh-220px)]">
         
         {{-- Toolbar Atas --}}
         <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-gray-100">
@@ -74,7 +74,7 @@
         </div>
 
         {{-- Tabel Presensi --}}
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto flex-1">
             <table class="w-full text-left border-collapse text-[13px]">
                 <thead>
                     <tr class="border-b border-gray-100 font-semibold text-gray-700 bg-white">
@@ -135,16 +135,21 @@
             </table>
         </div>
 
-        @if($presensis->hasPages())
-            <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
-                <div class="text-xs text-gray-500">
+        {{-- Footer Informasi & Pagination --}}
+        <div class="mt-auto px-5 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2 bg-gray-50/40">
+            <div class="text-xs text-gray-500">
+                @if($presensis->total() > 0)
                     Menampilkan {{ $presensis->firstItem() }} - {{ $presensis->lastItem() }} dari {{ $presensis->total() }} data
-                </div>
+                @else
+                    Tidak ada data presensi
+                @endif
+            </div>
+            @if($presensis->hasPages())
                 <div>
                     {{ $presensis->links() }}
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 
 </div>

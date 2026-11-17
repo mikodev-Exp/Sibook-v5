@@ -67,7 +67,7 @@
     <div id="permohonan-table-container"
          data-async-container
          @click="SiBookAsync.handleClick($event, 'permohonan-table-container')"
-         class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+         class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col min-h-[580px] lg:min-h-[calc(100vh-220px)]">
 
         {{-- Toolbar --}}
         <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-100">
@@ -124,7 +124,7 @@
         </div>
 
         {{-- Table --}}
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto flex-1">
             <table class="w-full text-left border-collapse text-[12.5px]">
                 <thead>
                     <tr class="border-b border-gray-100 font-semibold text-gray-500 bg-gray-50/70 uppercase tracking-wider text-[11px]">
@@ -299,16 +299,20 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
-        @if($permohonans->hasPages())
-            <div class="px-5 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="text-xs text-gray-400">
+        {{-- Footer Informasi & Pagination --}}
+        <div class="mt-auto px-5 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2 bg-gray-50/40">
+            <div class="text-xs text-gray-500">
+                @if($permohonans->total() > 0)
                     Menampilkan <span class="font-semibold text-gray-700">{{ $permohonans->firstItem() }}–{{ $permohonans->lastItem() }}</span>
                     dari <span class="font-semibold text-gray-700">{{ $permohonans->total() }}</span> permohonan
-                </div>
-                <div>{{ $permohonans->links() }}</div>
+                @else
+                    Tidak ada data permohonan
+                @endif
             </div>
-        @endif
+            @if($permohonans->hasPages())
+                <div>{{ $permohonans->links() }}</div>
+            @endif
+        </div>
     </div>
 
 </div>
