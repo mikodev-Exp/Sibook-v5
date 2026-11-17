@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::get('/mahasiswa/export', [MahasiswaController::class, 'exportAll'])->name('mahasiswa.export');
         Route::get('/mahasiswa/{user}/laporan', [MahasiswaController::class, 'laporan'])->name('mahasiswa.laporan');
         Route::get('/mahasiswa/{user}/laporan/export', [MahasiswaController::class, 'exportLaporan'])->name('mahasiswa.laporan.export');
+        Route::patch('/mahasiswa/{user}/periode', [MahasiswaController::class, 'updatePeriode'])->name('mahasiswa.update-periode');
 
         // Permohonan Magang
         Route::get('/permohonan', [PermohonanController::class, 'index'])->name('permohonan.index');

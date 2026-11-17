@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\StatusMagang;
 use App\Enums\StatusPermohonan;
 use App\Http\Controllers\Controller;
+use App\Models\Magang;
 use App\Models\PermohonanMagang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,13 +68,50 @@ class PermohonanController extends Controller
             'reviewed_at'   => now(),
         ]);
 
-        // ⚠ Tidak ada perubahan role atau pembuatan record magang di sini.
-        // Ini hanya verifikasi berkas saja. Aktivasi akun mahasiswa dilakukan oleh super_user.
+        // Update role dan status magang mahasiswa jika disetujui / ditolak
+        $user = $permohonan->user;
+        if ($user) {
+            if ($newStatus === StatusPermohonan::Approved) {
+                // Beri role mahasiswa
+                $user->syncRoles(['mahasiswa']);
 
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json(['ok' => true, 'message' => 'Status berhasil diperbarui.']);
+                // Tentukan periode magang dari tanggal rencana permohonan
+                $mulai = $permohonan->tanggal_mulai_rencana ? \Carbon\Carbon::parse($permohonan->tanggal_mulai_rencana) : today();
+                $selesai = $permohonan->tanggal_selesai_rencana ? \Carbon\Carbon::parse($permohonan->tanggal_selesai_rencana) : $mulai->copy()->addMonths(3);
+
+                // Jika sudah melewati tanggal selesai maka statusnya completed, selain itu active
+                $statusMagang = today()->gt($selesai) ? StatusMagang::Completed : StatusMagang::Active;
+
+                Magang::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'tanggal_mulai'   => $mulai,
+                        'tanggal_selesai' => $selesai,
+                        'status'          => $statusMagang,
+                    ]
+                );
+            } elseif ($newStatus === StatusPermohonan::Rejected) {
+                // Jika ditolak dan user bukan admin/superuser, kembalikan ke pendaftar
+                if (!$user->hasRole('admin') && !$user->hasRole('super_user')) {
+                    $user->syncRoles(['pendaftar']);
+                    if ($user->magang) {
+                        $user->magang->update(['status' => StatusMagang::Terminated]);
+                    }
+                }
+            }
         }
 
-        return back()->with('success', 'Status permohonan berhasil diperbarui.');
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'ok' => true,
+                'message' => $newStatus === StatusPermohonan::Approved
+                    ? 'Permohonan disetujui. Akun telah aktif sebagai Mahasiswa Magang.'
+                    : 'Status permohonan berhasil diperbarui.'
+            ]);
+        }
+
+        return back()->with('success', $newStatus === StatusPermohonan::Approved
+            ? 'Permohonan disetujui. Akun telah aktif sebagai Mahasiswa Magang.'
+            : 'Status permohonan berhasil diperbarui.');
     }
 }

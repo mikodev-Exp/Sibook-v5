@@ -358,7 +358,7 @@
                 <p class="text-[11px] text-gray-500 mt-0.5"
                    x-text="targetStatus==='rejected'
                            ? 'Permohonan ini akan ditolak.'
-                           : 'Hanya verifikasi berkas — belum aktivasi akun.'"></p>
+                           : (targetStatus==='approved' ? 'Akun pemohon otomatis aktif sebagai Mahasiswa.' : 'Tinjauan berkas tahap verifikasi admin.')"></p>
             </div>
             <button @click="show=false" class="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition">
                 <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -388,8 +388,10 @@
                 {{-- Info box --}}
                 <div class="flex items-start gap-2 px-3 py-2 rounded-xl bg-orange-50 border border-orange-100">
                     <svg class="w-3.5 h-3.5 text-orange-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <p class="text-[10.5px] text-orange-700 leading-relaxed">
-                        Aksi ini hanya memperbarui <strong>status berkas</strong>. Pembuatan akun aktif mahasiswa dilakukan oleh Super User secara terpisah.
+                    <p class="text-[10.5px] text-orange-700 leading-relaxed"
+                       x-text="targetStatus==='approved'
+                               ? 'Saat disetujui, akun pemohon otomatis dialihkan menjadi role Mahasiswa dan periode magang aktif sesuai tanggal rencana.'
+                               : (targetStatus==='rejected' ? 'Permohonan ditolak dan pemohon akan menerima catatan ini.' : 'Tinjauan berkas tahap verifikasi admin.')">
                     </p>
                 </div>
             </div>

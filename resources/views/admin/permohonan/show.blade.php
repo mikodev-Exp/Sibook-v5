@@ -266,7 +266,7 @@
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 card-anim">
                 <h2 class="text-sm font-bold text-gray-700 mb-2">Ambil Tindakan</h2>
                 <p class="text-[11px] text-gray-400 mb-4 leading-relaxed">
-                    Hanya memverifikasi kelayakan berkas. Akun mahasiswa baru diaktifkan oleh Super User.
+                    Saat disetujui, akun pemohon otomatis dialihkan menjadi role Mahasiswa dan periode magang aktif sesuai tanggal rencana.
                 </p>
 
                 {{-- Tinjau (submitted → reviewed_by_admin) --}}

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\StatusMagang;
 use App\Http\Controllers\Controller;
+use App\Models\Magang;
 use App\Models\User;
 use App\Services\ExportRekapService;
 use Illuminate\Http\Request;
@@ -125,5 +127,51 @@ class MahasiswaController extends Controller
         $mahasiswas = $query->latest()->get();
 
         return $exportService->exportSemuaMahasiswa($mahasiswas);
+    }
+
+    /**
+     * Update atau aktifkan kembali periode magang mahasiswa
+     */
+    public function updatePeriode(Request $request, User $user)
+    {
+        $request->validate([
+            'tanggal_mulai'   => ['required', 'date'],
+            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
+            'status'          => ['nullable', 'string', 'in:active,completed,terminated'],
+            'no_surat'        => ['nullable', 'string', 'max:255'],
+        ]);
+
+        // Pastikan role user adalah mahasiswa
+        if (!$user->hasRole('mahasiswa')) {
+            $user->syncRoles(['mahasiswa']);
+        }
+
+        $mulai = \Carbon\Carbon::parse($request->tanggal_mulai);
+        $selesai = \Carbon\Carbon::parse($request->tanggal_selesai);
+
+        // Tentukan status magang
+        $status = $request->status ?? StatusMagang::Active->value;
+        if ($status === 'active' && today()->gt($selesai)) {
+            $status = StatusMagang::Completed->value;
+        }
+
+        Magang::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'tanggal_mulai'   => $mulai,
+                'tanggal_selesai' => $selesai,
+                'status'          => $status,
+                'no_surat'        => $request->no_surat,
+            ]
+        );
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Periode magang mahasiswa berhasil diperbarui.',
+            ]);
+        }
+
+        return back()->with('success', 'Periode magang mahasiswa berhasil diperbarui.');
     }
 }

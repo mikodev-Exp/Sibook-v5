@@ -89,6 +89,38 @@
         </div>
     @endif
 
+    <!-- ================= STATUS PERIODE MAGANG ================= -->
+    @php
+        $isMagangValid = false;
+        $magangMessage = null;
+        $magangBadgeType = 'warning';
+
+        if (!isset($magang) || !$magang) {
+            $magangMessage = 'Anda belum memiliki periode magang terdaftar. Silakan hubungi admin.';
+            $magangBadgeType = 'error';
+        } elseif (today()->lt($magang->tanggal_mulai)) {
+            $magangMessage = 'Periode magang Anda dimulai pada ' . $magang->tanggal_mulai->translatedFormat('d F Y') . '. Presensi baru dapat dilakukan mulai tanggal tersebut.';
+            $magangBadgeType = 'info';
+        } elseif (today()->gt($magang->tanggal_selesai) || $magang->status !== \App\Enums\StatusMagang::Active) {
+            $magangMessage = 'Periode magang Anda telah berakhir pada ' . $magang->tanggal_selesai->translatedFormat('d F Y') . ' (Status: Nonaktif). Hubungi admin jika ingin mengaktifkan kembali periode magang Anda.';
+            $magangBadgeType = 'error';
+        } else {
+            $isMagangValid = true;
+        }
+    @endphp
+
+    @if(!$isMagangValid)
+        <div class="anim-fade-up flex items-start gap-3 p-4 rounded-2xl border {{ $magangBadgeType === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-amber-50 border-amber-200 text-amber-800' }}">
+            <svg class="w-6 h-6 flex-shrink-0 {{ $magangBadgeType === 'error' ? 'text-rose-500' : 'text-amber-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+                <p class="text-sm font-bold">{{ $magangBadgeType === 'error' ? 'Akun Magang Nonaktif / Berakhir' : 'Periode Magang Belum Dimulai' }}</p>
+                <p class="text-xs mt-0.5 opacity-90 leading-relaxed">{{ $magangMessage }}</p>
+            </div>
+        </div>
+    @endif
+
     <!-- ================= STATUS GPS ================= -->
     <div class="anim-fade-up anim-delay-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -131,18 +163,25 @@
                         <p class="text-xs mt-0.5">Pukul <b>{{ $presensiHariIni->jam_masuk }}</b> WIB</p>
                     </div>
                 @else
-                    <form action="{{ route('mahasiswa.presensi.masuk') }}" method="POST" @submit.prevent="submitForm($event)">
-                        @csrf
-                        <input type="hidden" name="lat" x-model="lat">
-                        <input type="hidden" name="lng" x-model="lng">
-                        <button type="submit" :disabled="isLoading || !lat"
-                                class="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 shadow-md shadow-green-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
-                            <span x-show="!isLoading">🟢 Absen Masuk Sekarang</span>
-                            <span x-show="isLoading" x-cloak>Memproses...</span>
-                        </button>
-                        <p class="text-[11px] text-gray-400 mt-2 text-center" x-show="!lat && !gpsError" x-cloak>Menunggu koordinat GPS...</p>
-                        <p class="text-[11px] text-red-500 mt-2 text-center" x-show="gpsError" x-cloak>Tekan "Perbarui Lokasi" di atas untuk mencoba lagi.</p>
-                    </form>
+                    @if(!$isMagangValid)
+                        <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-center">
+                            <p class="text-xs font-semibold text-gray-500">Presensi Masuk Ditutup</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Periode magang Anda belum aktif atau telah berakhir</p>
+                        </div>
+                    @else
+                        <form action="{{ route('mahasiswa.presensi.masuk') }}" method="POST" @submit.prevent="submitForm($event)">
+                            @csrf
+                            <input type="hidden" name="lat" x-model="lat">
+                            <input type="hidden" name="lng" x-model="lng">
+                            <button type="submit" :disabled="isLoading || !lat"
+                                    class="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 shadow-md shadow-green-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                                <span x-show="!isLoading">🟢 Absen Masuk Sekarang</span>
+                                <span x-show="isLoading" x-cloak>Memproses...</span>
+                            </button>
+                            <p class="text-[11px] text-gray-400 mt-2 text-center" x-show="!lat && !gpsError" x-cloak>Menunggu koordinat GPS...</p>
+                            <p class="text-[11px] text-red-500 mt-2 text-center" x-show="gpsError" x-cloak>Tekan "Perbarui Lokasi" di atas untuk mencoba lagi.</p>
+                        </form>
+                    @endif
                 @endif
             </div>
         </div>
