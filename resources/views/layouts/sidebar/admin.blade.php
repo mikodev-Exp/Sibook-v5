@@ -1,6 +1,8 @@
 @php
     $permohonanPendingCount = \App\Models\PermohonanMagang::where('status', 'submitted')->count();
     $userRegisterCount = \App\Models\User::role('pendaftar')->count();
+    $perizinanPendingCount = \App\Models\Perizinan::where('status', 'submitted')->count();
+    $logbookPendingCount = \App\Models\Logbook::where('status', 'submitted')->count();
 @endphp
 
 <aside class="w-64 bg-white border-r border-[#F0F2F5] h-full flex flex-col justify-between py-5 px-3 select-none">
@@ -9,30 +11,42 @@
 
         {{-- Logbook --}}
         <a href="{{ route('admin.logbook.index') }}"
-           class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] transition-colors duration-150
+           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] transition-colors duration-150
                   {{ request()->routeIs('admin.logbook.*') 
                      ? 'bg-[#FEF6EE] text-[#E06D28] font-semibold' 
                      : 'text-[#4B5563] hover:text-[#111827] hover:bg-gray-50/80 font-normal' }}">
-            {{-- Book Icon persis di mockup --}}
-            <svg class="w-[18px] h-[18px] flex-shrink-0 {{ request()->routeIs('admin.logbook.*') ? 'text-[#E06D28]' : 'text-[#9CA3AF]' }}" 
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span>Logbook</span>
+            <div class="flex items-center gap-3 min-w-0">
+                <svg class="w-[18px] h-[18px] flex-shrink-0 {{ request()->routeIs('admin.logbook.*') ? 'text-[#E06D28]' : 'text-[#9CA3AF]' }}" 
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span>Logbook</span>
+            </div>
+            @if($logbookPendingCount > 0)
+                <span class="px-1.5 py-0.5 text-[10.5px] font-bold rounded-md bg-amber-100 text-amber-800">
+                    {{ $logbookPendingCount }}
+                </span>
+            @endif
         </a>
 
         {{-- Perizinan --}}
         <a href="{{ route('admin.perizinan.index') }}"
-           class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] transition-colors duration-150
+           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] transition-colors duration-150
                   {{ request()->routeIs('admin.perizinan.*') 
                      ? 'bg-[#FEF6EE] text-[#E06D28] font-semibold' 
                      : 'text-[#4B5563] hover:text-[#111827] hover:bg-gray-50/80 font-normal' }}">
-            {{-- Mail Icon --}}
-            <svg class="w-[18px] h-[18px] flex-shrink-0 {{ request()->routeIs('admin.perizinan.*') ? 'text-[#E06D28]' : 'text-[#9CA3AF]' }}" 
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <span>Perizinan</span>
+            <div class="flex items-center gap-3 min-w-0">
+                <svg class="w-[18px] h-[18px] flex-shrink-0 {{ request()->routeIs('admin.perizinan.*') ? 'text-[#E06D28]' : 'text-[#9CA3AF]' }}" 
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                <span>Perizinan</span>
+            </div>
+            @if($perizinanPendingCount > 0)
+                <span class="px-1.5 py-0.5 text-[10.5px] font-bold rounded-md bg-orange-100 text-orange-800">
+                    {{ $perizinanPendingCount }}
+                </span>
+            @endif
         </a>
 
         {{-- Presensi Manual --}}

@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
         // Perizinan
         Route::get('/perizinan', [PerizinanController::class, 'index'])->name('perizinan.index');
+        Route::patch('/perizinan/{perizinan}/status', [PerizinanController::class, 'updateStatus'])->name('perizinan.update-status');
 
         // Presensi
         Route::get('/presensi/export', [PresensiController::class, 'export'])->name('presensi.export');

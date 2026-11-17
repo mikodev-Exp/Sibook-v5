@@ -87,8 +87,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        <span class="font-mono text-gray-700 font-semibold">{{ $profile->nim ?? '-' }}</span> • 
-                        {{ $profile->universitas ?? '-' }} • 
+                        <span class="font-medium text-gray-700">{{ $profile->universitas ?? '-' }}</span> • 
                         {{ $profile->program_studi ?? ($profile->jurusan ?? '-') }}
                     </p>
                     <div class="flex flex-wrap items-center gap-4 mt-2.5 text-xs text-gray-600">
@@ -360,7 +359,6 @@
                 <p class="font-semibold">Mahasiswa Magang,</p>
                 <div class="h-20"></div>
                 <p class="font-bold underline">{{ $user->name }}</p>
-                <p class="text-gray-500">NIM. {{ $profile->nim ?? '.....................................' }}</p>
             </div>
         </div>
     </div>

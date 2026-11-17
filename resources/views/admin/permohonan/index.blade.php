@@ -116,7 +116,7 @@
                 </div>
                 <input type="text" name="search" value="{{ request('search') }}"
                        @input.debounce.350ms="SiBookAsync.handleSearch($event, 'permohonan-table-container')"
-                       placeholder="Cari nama, NIM, universitas…"
+                       placeholder="Cari nama, universitas…"
                        class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg
                               text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2
                               focus:ring-orange-400 focus:border-orange-400 transition shadow-sm">
@@ -173,9 +173,6 @@
                             <td class="py-3.5 px-3">
                                 <div class="font-medium text-gray-800 leading-tight">{{ $profile?->universitas ?? '-' }}</div>
                                 <div class="text-[11px] text-gray-400">{{ $profile?->program_studi ?? '-' }}</div>
-                                @if($profile?->nim)
-                                    <div class="text-[10px] font-mono text-gray-400 mt-0.5">NIM: {{ $profile->nim }}</div>
-                                @endif
                             </td>
 
                             {{-- Periode --}}

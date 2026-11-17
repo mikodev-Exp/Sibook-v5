@@ -66,9 +66,6 @@
                 <div>
                     <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">{{ $user?->name ?? '-' }}</h1>
                     <p class="text-sm text-gray-500">{{ $user?->email ?? '-' }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">
-                        NIM: <span class="font-mono font-semibold text-gray-600">{{ $profile?->nim ?? '-' }}</span>
-                    </p>
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-wrap">

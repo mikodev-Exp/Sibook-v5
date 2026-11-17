@@ -54,7 +54,7 @@
                            name="search" 
                            value="{{ request('search') }}"
                            @input.debounce.300ms="SiBookAsync.handleSearch($event, 'mahasiswa-table-container')"
-                           placeholder="Cari nama, universitas, NIM..." 
+                           placeholder="Cari nama, universitas..." 
                            class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition shadow-sm">
                 </form>
             </div>
@@ -80,10 +80,9 @@
                             $magang = $mhs->magang;
                         @endphp
                         <tr class="hover:bg-gray-50/70 transition-colors">
-                            {{-- Info Nama & NIM --}}
+                            {{-- Info Nama --}}
                             <td class="py-4 pl-6 pr-3">
                                 <div class="font-semibold text-gray-900">{{ $mhs->name }}</div>
-                                <div class="text-xs text-gray-400 font-mono mt-0.5">NIM: {{ $profile->nim ?? '-' }}</div>
                             </td>
 
                             {{-- Universitas & Prodi --}}
