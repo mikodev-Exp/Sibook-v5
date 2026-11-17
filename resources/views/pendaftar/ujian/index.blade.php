@@ -79,9 +79,9 @@
             </div>
             <div class="p-4 bg-gray-50 border-t border-gray-100 text-xs text-gray-600 space-y-1">
                 <p class="font-bold text-gray-800 mb-2">Hubungi Admin:</p>
-                <a href="https://wa.me/6212345678" target="_blank" class="block hover:text-indigo-600">📞 +62 12345678</a>
-                <a href="https://wa.me/6212345678" target="_blank" class="block hover:text-indigo-600">📞 +62 12345678</a>
-                <a href="https://wa.me/6212345678" target="_blank" class="block hover:text-indigo-600">📞 +62 12345678</a>
+                <a href="https://wa.me/6212345678" target="_blank" class="block hover:text-gray-900">+62 12345678 (WhatsApp)</a>
+                <a href="https://wa.me/6212345678" target="_blank" class="block hover:text-gray-900">+62 12345678 (WhatsApp)</a>
+                <a href="https://wa.me/6212345678" target="_blank" class="block hover:text-gray-900">+62 12345678 (WhatsApp)</a>
             </div>
         </div>
     </div>

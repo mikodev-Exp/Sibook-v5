@@ -28,7 +28,10 @@
     </div>
 
     <!-- Container 2: Riwayat Logbook -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div id="mahasiswa-logbook-container"
+         data-async-container
+         @click="SiBookAsync.handleClick($event, 'mahasiswa-logbook-container')"
+         class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
             <h3 class="font-bold text-gray-800">Riwayat Logbook</h3>
         </div>

@@ -217,17 +217,22 @@
     </div>
 
     <!-- ================= RIWAYAT PRESENSI ================= -->
-    <div class="anim-fade-up anim-delay-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div id="riwayat-presensi-container"
+         data-async-container
+         @click="SiBookAsync.handleClick($event, 'riwayat-presensi-container')"
+         class="anim-fade-up anim-delay-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <div>
                 <h3 class="font-bold text-gray-800">📋 Riwayat Presensi</h3>
                 <p class="text-xs text-gray-500 mt-0.5">Rekap kehadiran Anda per bulan.</p>
             </div>
             <!-- Filter Bulan (terkirim sebagai ?bulan=YYYY-MM) -->
-            <form method="GET" action="{{ url()->current() }}" class="flex items-center gap-2">
+            <form method="GET" action="{{ url()->current() }}" 
+                  @submit.prevent="SiBookAsync.handleFormSubmit($event, 'riwayat-presensi-container')"
+                  class="flex items-center gap-2">
                 <input type="month" name="bulan" value="{{ request('bulan', now()->format('Y-m')) }}"
-                       onchange="this.form.submit()"
-                       class="text-sm border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
+                       @change="SiBookAsync.handleFormSubmit($event, 'riwayat-presensi-container')"
+                       class="text-sm border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
                 @if(request('bulan'))
                     <a href="{{ url()->current() }}" class="text-xs font-bold text-gray-400 hover:text-red-500">Reset</a>
                 @endif
