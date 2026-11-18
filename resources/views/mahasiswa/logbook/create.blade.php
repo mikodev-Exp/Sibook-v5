@@ -1,0 +1,1 @@
+@include('mahasiswa.logbook.form')
