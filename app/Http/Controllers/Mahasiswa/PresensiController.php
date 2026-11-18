@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Mahasiswa;
 
+use App\Enums\StatusMagang;
 use App\Http\Controllers\Controller;
 use App\Models\Presensi;
 use App\Models\Pengaturan;
@@ -15,6 +16,14 @@ class PresensiController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $magang = $user->magang;
+
+        // Otomatis nonaktifkan jika tanggal selesai sudah terlewati
+        if ($magang && $magang->status === StatusMagang::Active && today()->gt($magang->tanggal_selesai)) {
+            $magang->update(['status' => StatusMagang::Completed]);
+            $magang->refresh();
+        }
+
         $presensiHariIni = $user->presensis()->where('tanggal', today())->first();
         
         // Riwayat dengan filter (bisa dikembangkan nanti)
@@ -25,7 +34,7 @@ class PresensiController extends Controller
         $kantorLng = (float) Pengaturan::get('kantor.lng', 112.7358000);
         $radius = (int) Pengaturan::get('kantor.radius_m', 1000);
 
-        return view('mahasiswa.presensi.index', compact('presensiHariIni', 'riwayat', 'kantorLat', 'kantorLng', 'radius'));
+        return view('mahasiswa.presensi.index', compact('presensiHariIni', 'riwayat', 'kantorLat', 'kantorLng', 'radius', 'magang'));
     }
 
     public function storeMasuk(Request $request)
@@ -36,6 +45,26 @@ class PresensiController extends Controller
         ]);
 
         $user = Auth::user();
+        $magang = $user->magang;
+
+        // Validasi periode magang
+        if (!$magang) {
+            return back()->with('error', 'Anda belum memiliki periode magang yang terdaftar. Silakan hubungi admin.');
+        }
+
+        // Cek tanggal mulai magang
+        if (today()->lt($magang->tanggal_mulai)) {
+            return back()->with('error', 'Periode magang Anda belum dimulai. Anda baru dapat melakukan presensi mulai tanggal ' . $magang->tanggal_mulai->translatedFormat('d F Y') . '.');
+        }
+
+        // Cek tanggal selesai / status magang
+        if (today()->gt($magang->tanggal_selesai) || $magang->status !== StatusMagang::Active) {
+            if ($magang->status === StatusMagang::Active) {
+                $magang->update(['status' => StatusMagang::Completed]);
+            }
+            return back()->with('error', 'Periode magang Anda telah berakhir pada tanggal ' . $magang->tanggal_selesai->translatedFormat('d F Y') . '. Status Anda saat ini nonaktif. Silakan hubungi admin jika ingin mengaktifkan kembali periode magang Anda.');
+        }
+
         $hariIni = today();
 
         // Cek sudah absen atau belum
@@ -81,6 +110,12 @@ class PresensiController extends Controller
         ]);
 
         $user = Auth::user();
+        $magang = $user->magang;
+
+        if (!$magang || today()->gt($magang->tanggal_selesai) || $magang->status !== StatusMagang::Active) {
+            return back()->with('error', 'Status magang Anda tidak aktif atau telah berakhir.');
+        }
+
         $presensi = $user->presensis()->where('tanggal', today())->first();
 
         if (!$presensi || !$presensi->jam_masuk) {

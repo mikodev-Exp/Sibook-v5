@@ -5,14 +5,9 @@
 @section('content')
 
 @php
-    /*
-    |----------------------------------------------------------------------
-    | DATA TURUNAN — dihitung di view agar controller tidak perlu diubah
-    |----------------------------------------------------------------------
-    */
     $namaDepan = explode(' ', trim($user->name))[0];
 
-    // Sapaan otomatis sesuai jam saat ini
+    // Sapaan otomatis sesuai jam
     $jamServer = (int) now()->format('G');
     if ($jamServer >= 4 && $jamServer < 11) {
         $sapaan = 'Selamat pagi';
@@ -24,11 +19,9 @@
         $sapaan = 'Selamat malam';
     }
 
-    // Nama hari & bulan berbahasa Indonesia
     $hariIndo  = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     $bulanIndo = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-    $tglIndo = fn ($tanggal) => $tanggal->format('d') . ' ' . $bulanIndo[(int) $tanggal->format('n')] . ' ' . $tanggal->format('Y');
+    $tglIndo = fn ($tanggal) => $tanggal ? $tanggal->format('d') . ' ' . $bulanIndo[(int) $tanggal->format('n')] . ' ' . $tanggal->format('Y') : '-';
 
     // Progres periode magang
     $mulai     = $magang && $magang->tanggal_mulai ? \Carbon\Carbon::parse($magang->tanggal_mulai) : null;
@@ -37,425 +30,387 @@
     $totalHari = ($mulai && $selesai) ? (int) $mulai->diffInDays($selesai) + 1 : 0;
 
     $hariBerjalan = 0;
-    if ($hariIni->gte($mulai)) {
+    if ($mulai && $hariIni->gte($mulai)) {
         $hariBerjalan = (int) $mulai->diffInDays($hariIni) + 1;
     }
-    if ($hariIni->gt($selesai)) {
+    if ($selesai && $hariIni->gt($selesai)) {
         $hariBerjalan = $totalHari;
     }
     $hariBerjalan   = max(0, min($hariBerjalan, $totalHari));
     $sisaHari       = max(0, $totalHari - $hariBerjalan);
     $progressMagang = $totalHari > 0 ? (int) round($hariBerjalan / $totalHari * 100) : 0;
 
-    // Status periode magang
-    if ($hariIni->lt($mulai)) {
-        $statusMagang = ['Belum Dimulai', 'bg-amber-100 text-amber-700'];
-    } elseif ($hariIni->gt($selesai)) {
-        $statusMagang = ['Periode Selesai', 'bg-gray-200 text-gray-600'];
+    if ($mulai && $hariIni->lt($mulai)) {
+        $statusMagang = ['Belum Dimulai', 'bg-amber-100 text-amber-800 border-amber-200'];
+    } elseif ($selesai && $hariIni->gt($selesai)) {
+        $statusMagang = ['Periode Selesai', 'bg-gray-100 text-gray-700 border-gray-200'];
     } else {
-        $statusMagang = ['Sedang Berlangsung', 'bg-emerald-100 text-emerald-700'];
+        $statusMagang = ['Sedang Berlangsung', 'bg-emerald-100 text-emerald-800 border-emerald-200'];
     }
 
-    // Durasi kerja hari ini (muncul otomatis jika jam masuk + jam pulang lengkap)
     $durasiKerja = null;
     if ($presensiHariIni && $presensiHariIni->jam_masuk && $presensiHariIni->jam_pulang) {
         $menit       = (int) abs(\Carbon\Carbon::parse($presensiHariIni->jam_pulang)->diffInMinutes(\Carbon\Carbon::parse($presensiHariIni->jam_masuk)));
         $durasiKerja = intdiv($menit, 60) . ' jam ' . ($menit % 60) . ' menit';
     }
 
-    // Cek ketersediaan route — link otomatis menyesuaikan fitur yang sudah ada
-    $adaLogbook = Route::has('mahasiswa.logbook.index');
-    $adaIzin    = Route::has('mahasiswa.izin.index');
-    $adaRiwayat = Route::has('mahasiswa.presensi.riwayat');
-    $adaProfil  = Route::has('mahasiswa.profil');
-
-    // Item menu cepat
     $menuCepat = [
+        [
+            'judul'  => 'Presensi Harian',
+            'desk'   => 'Lakukan absen masuk / pulang',
+            'ikon'   => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+            'ikonBg' => 'bg-orange-50 text-orange-600',
+            'href'   => route('mahasiswa.presensi.index'),
+        ],
         [
             'judul'  => 'Isi Logbook',
             'desk'   => 'Catat aktivitas harian magang',
             'ikon'   => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
-            'ikonBg' => 'bg-green-50 text-green-600',
-            'href'   => $adaLogbook ? route('mahasiswa.logbook.index') : '#',
+            'ikonBg' => 'bg-emerald-50 text-emerald-600',
+            'href'   => route('mahasiswa.logbook.index'),
         ],
         [
-            'judul'  => 'Ajukan Izin',
-            'desk'   => 'Kirim permohonan izin / cuti',
+            'judul'  => 'Pengajuan Izin',
+            'desk'   => 'Permohonan izin atau sakit',
             'ikon'   => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-            'ikonBg' => 'bg-orange-50 text-orange-600',
-            'href'   => $adaIzin ? route('mahasiswa.izin.index') : '#',
-        ],
-        [
-            'judul'  => 'Riwayat Presensi',
-            'desk'   => 'Lihat rekap kehadiran Anda',
-            'ikon'   => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-            'ikonBg' => 'bg-indigo-50 text-indigo-600',
-            'href'   => $adaRiwayat ? route('mahasiswa.presensi.riwayat') : '#',
+            'ikonBg' => 'bg-blue-50 text-blue-600',
+            'href'   => route('mahasiswa.perizinan.index'),
         ],
         [
             'judul'  => 'Profil Saya',
-            'desk'   => 'Perbarui data diri & kontak',
+            'desk'   => 'Perbarui data diri dan kontak',
             'ikon'   => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
             'ikonBg' => 'bg-purple-50 text-purple-600',
-            'href'   => $adaProfil ? route('mahasiswa.profil') : '#',
+            'href'   => route('profile.edit'),
         ],
     ];
 @endphp
 
-{{-- Animasi & efek tambahan --}}
-<style>
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes floatY {
-        0%, 100% { transform: translateY(0); }
-        50%      { transform: translateY(-10px); }
-    }
-    .anim-fade-up  { animation: fadeUp .55s ease-out both; }
-    .anim-delay-1  { animation-delay: .10s; }
-    .anim-delay-2  { animation-delay: .20s; }
-    .anim-delay-3  { animation-delay: .32s; }
-    .anim-float    { animation: floatY 7s ease-in-out infinite; }
-</style>
+<div class="max-w-6xl mx-auto space-y-6">
 
-<!-- ================= HERO / SAMBUTAN ================= -->
-<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 shadow-xl shadow-indigo-200/60 p-7 lg:p-9 mb-8 anim-fade-up">
-    <!-- Dekorasi latar -->
-    <div class="absolute -top-20 -right-16 w-72 h-72 bg-white/10 rounded-full blur-2xl"></div>
-    <div class="absolute -bottom-24 -left-12 w-64 h-64 bg-fuchsia-400/20 rounded-full blur-2xl anim-float"></div>
-    <div class="absolute top-8 right-1/3 w-24 h-24 bg-indigo-400/30 rounded-full blur-xl"></div>
-
-    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <!-- Sapaan -->
-        <div>
-            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 text-white text-xs font-semibold backdrop-blur-sm">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Status Magang: {{ $statusMagang[0] }}
-            </span>
-            <h2 class="mt-4 text-2xl lg:text-3xl font-extrabold text-white leading-snug">
-                {{ $sapaan }}, {{ $namaDepan }}! 👋
-            </h2>
-            <p class="text-indigo-100 mt-2 text-sm lg:text-base">
-                Semangat menjalani aktivitas magang hari ini di BPS Kota Surabaya. Jangan lupa absen &amp; isi logbook ya!
-            </p>
-            <div class="flex flex-wrap gap-2 mt-5">
-                <span class="px-3 py-1.5 rounded-lg bg-white/10 text-white text-xs font-medium">📅 Hari ke-{{ $hariBerjalan }} dari {{ $totalHari }} hari</span>
-                <span class="px-3 py-1.5 rounded-lg bg-white/10 text-white text-xs font-medium">⏳ Sisa {{ $sisaHari }} hari lagi</span>
-                <span class="px-3 py-1.5 rounded-lg bg-white/10 text-white text-xs font-medium">🎯 Progres {{ $progressMagang }}%</span>
-            </div>
-        </div>
-
-        <!-- Jam Live -->
-        <div class="lg:text-right">
-            <p class="text-indigo-200 text-[11px] font-semibold uppercase tracking-[0.2em]">Waktu Indonesia Barat</p>
-            <p id="liveClock" class="mt-1 text-4xl lg:text-5xl font-extrabold text-white tabular-nums">--:--:--</p>
-            <p class="text-indigo-100 text-sm mt-2">
-                {{ $hariIndo[(int) $hariIni->format('w')] }}, {{ $tglIndo($hariIni) }}
-            </p>
-        </div>
-    </div>
-</div>
-
-<!-- ================= PROFIL + PRESENSI ================= -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    <!-- Profil Singkat -->
-    <div class="anim-fade-up anim-delay-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col lg:col-span-1">
-        <div class="flex items-center gap-4 mb-5">
-            <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-200">
-                {{ substr($user->name, 0, 1) }}
-            </div>
+    {{-- Hero Card Modern --}}
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 shadow-sm p-6 lg:p-8 text-white">
+        <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6 z-10">
             <div>
-                <h3 class="text-lg font-bold text-gray-800 leading-tight">{{ $user->name }}</h3>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 mt-1">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    Mahasiswa Magang
-                </span>
-            </div>
-        </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
+                    <span>Status Magang: {{ $statusMagang[0] }}</span>
+                </div>
+                <h1 class="mt-3 text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                    {{ $sapaan }}, {{ $namaDepan }}
+                </h1>
+                <p class="text-orange-100 text-xs sm:text-sm mt-1 max-w-xl">
+                    Semangat menjalani aktivitas magang di BPS Kota Surabaya. Jangan lupa melengkapi presensi dan mengisi logbook harian Anda.
+                </p>
 
-        <div class="space-y-3 text-sm">
-            <div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-3">
-                <span class="text-gray-500 flex items-center gap-2">✉️ Email</span>
-                <span class="font-medium text-gray-800 text-right break-all">{{ $user->email }}</span>
+                <div class="flex flex-wrap items-center gap-2 mt-4 text-xs">
+                    <span class="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium">
+                        Hari ke-{{ $hariBerjalan }} dari {{ $totalHari }} hari
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium">
+                        Sisa {{ $sisaHari }} hari
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-white/15 text-white font-medium">
+                        Progres {{ $progressMagang }}%
+                    </span>
+                </div>
             </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-3">
-                <span class="text-gray-500 flex items-center gap-2">📱 No. HP</span>
-                <span class="font-medium text-gray-800">{{ $user->mahasiswaProfile->no_hp ?? '-' }}</span>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-3">
-                <span class="text-gray-500 flex items-center gap-2">🏢 Lokasi Magang</span>
-                <span class="font-medium text-gray-800 text-right">BPS Kota Surabaya</span>
-            </div>
-            <div class="flex items-start justify-between gap-4 pt-1">
-                <span class="text-gray-500 flex items-center gap-2">📆 Periode Magang</span>
-                <span class="font-medium text-gray-800 text-right">
-                    {{ $tglIndo($mulai) }}<br>
-                    <span class="text-xs text-gray-400">s/d</span><br>
-                    {{ $tglIndo($selesai) }}
-                </span>
+
+            <div class="md:text-right bg-white/10 md:bg-transparent p-4 md:p-0 rounded-xl backdrop-blur-sm md:backdrop-blur-none">
+                <p class="text-orange-100 text-[11px] font-semibold uppercase tracking-wider">Waktu Indonesia Barat</p>
+                <div id="liveClock" class="mt-1 text-3xl lg:text-4xl font-extrabold text-white tabular-nums tracking-wide">--:--:--</div>
+                <p class="text-orange-100 text-xs mt-1">
+                    {{ $hariIndo[(int) $hariIni->format('w')] }}, {{ $tglIndo($hariIni) }}
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- Kartu Presensi -->
-    <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Tombol / Status Masuk -->
-        <div class="anim-fade-up anim-delay-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col relative overflow-hidden group hover:shadow-lg transition-shadow duration-300">
-            <div class="absolute -right-5 -top-5 w-28 h-28 bg-green-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+    {{-- Grid: Profil Ringkas + Status Presensi Hari Ini --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <div class="relative flex items-center gap-3 mb-1">
-                <div class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+        {{-- Profil Singkat --}}
+        <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3.5 mb-5 pb-4 border-b border-gray-100">
+                    <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 font-extrabold text-base flex items-center justify-center shrink-0">
+                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-sm font-bold text-gray-900 truncate">{{ $user->name }}</h3>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-gray-100 text-gray-700 mt-0.5">
+                            Mahasiswa Magang
+                        </span>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-gray-800">Presensi Masuk</h3>
-                    <p class="text-xs text-gray-500">Catat kehadiran saat tiba di kantor.</p>
+
+                <div class="space-y-3 text-xs">
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-gray-400 font-medium">Email:</span>
+                        <span class="font-semibold text-gray-800 text-right truncate">{{ $user->email }}</span>
+                    </div>
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-gray-400 font-medium">Institusi:</span>
+                        <span class="font-semibold text-gray-800 text-right">{{ $user->mahasiswaProfile->universitas ?? '-' }}</span>
+                    </div>
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-gray-400 font-medium">Jurusan:</span>
+                        <span class="font-semibold text-gray-800 text-right">{{ $user->mahasiswaProfile->jurusan ?? ($user->mahasiswaProfile->program_studi ?? '-') }}</span>
+                    </div>
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-gray-400 font-medium">Lokasi:</span>
+                        <span class="font-semibold text-gray-800 text-right">BPS Kota Surabaya</span>
+                    </div>
+                    <div class="flex items-start justify-between gap-2 pt-2 border-t border-gray-100">
+                        <span class="text-gray-400 font-medium">Periode:</span>
+                        <span class="font-semibold text-gray-800 text-right">
+                            {{ $mulai ? $mulai->translatedFormat('d M Y') : '-' }} s/d {{ $selesai ? $selesai->translatedFormat('d M Y') : '-' }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div class="relative mt-auto pt-6">
-                @if($presensiHariIni && $presensiHariIni->jam_masuk)
-                    {{-- Sudah absen masuk: tampilkan informasi singkat --}}
-                    <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl flex items-center gap-3">
-                        <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <div>
-                            <p class="font-semibold text-sm">✅ Tercatat Masuk</p>
-                            <p class="text-xs mt-0.5">Anda sudah absen masuk pukul <b>{{ $presensiHariIni->jam_masuk }}</b>. Jangan lupa isi logbook sebelum pulang ya!</p>
-                        </div>
-                    </div>
-                @else
-                    {{-- Belum absen masuk: tampilkan tombol --}}
-                    <button type="button" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 shadow-md shadow-green-200 hover:shadow-lg hover:shadow-green-300 hover:-translate-y-0.5 flex justify-center items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        Absen Masuk Sekarang
-                    </button>
-                    <p class="text-[11px] text-gray-400 text-center mt-2">Pastikan Anda berada di area kantor saat menekan tombol ini.</p>
-                @endif
+            <div class="pt-4 mt-4 border-t border-gray-100">
+                <a href="{{ route('profile.edit') }}" class="text-xs font-semibold text-orange-600 hover:text-orange-700 flex items-center justify-between">
+                    <span>Kelola Profil Akun</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
             </div>
         </div>
 
-        <!-- Tombol / Status Keluar -->
-        <div class="anim-fade-up anim-delay-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col relative overflow-hidden group hover:shadow-lg transition-shadow duration-300">
-            <div class="absolute -right-5 -top-5 w-28 h-28 bg-blue-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+        {{-- Status Presensi Masuk & Keluar Hari Ini --}}
+        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            <div class="relative flex items-center gap-3 mb-1">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                </div>
+            {{-- Kartu Presensi Masuk --}}
+            <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between">
                 <div>
-                    <h3 class="font-bold text-gray-800">Presensi Keluar</h3>
-                    <p class="text-xs text-gray-500">Catat kehadiran saat jam kerja berakhir.</p>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] font-semibold text-gray-400">Batas: 07:30 WIB</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm">Presensi Masuk</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Catat kehadiran saat tiba di kantor.</p>
+                </div>
+
+                <div class="mt-6">
+                    @if($presensiHariIni && $presensiHariIni->jam_masuk)
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span class="text-xs font-bold text-emerald-800">Tercatat Masuk</span>
+                            </div>
+                            <p class="text-xs text-emerald-700 mt-1 font-semibold">Pukul {{ $presensiHariIni->jam_masuk }} WIB</p>
+                        </div>
+                    @else
+                        <a href="{{ route('mahasiswa.presensi.index') }}"
+                           class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Lakukan Presensi Masuk</span>
+                        </a>
+                    @endif
                 </div>
             </div>
 
-            <div class="relative mt-auto pt-6">
-                @if($presensiHariIni && $presensiHariIni->jam_pulang)
-                    {{-- Sudah absen keluar: tampilkan informasi singkat + durasi kerja --}}
-                    <div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-xl flex items-center gap-3">
-                        <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <div>
-                            <p class="font-semibold text-sm">✅ Tercatat Keluar</p>
-                            <p class="text-xs mt-0.5">
-                                Anda absen pulang pukul <b>{{ $presensiHariIni->jam_pulang }}</b>
+            {{-- Kartu Presensi Keluar --}}
+            <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] font-semibold text-gray-400">Batas: 16:00 WIB</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm">Presensi Keluar</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Catat kepulangan saat jam kerja berakhir.</p>
+                </div>
+
+                <div class="mt-6">
+                    @if($presensiHariIni && $presensiHariIni->jam_pulang)
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                <span class="text-xs font-bold text-blue-800">Tercatat Keluar</span>
+                            </div>
+                            <p class="text-xs text-blue-700 mt-1 font-semibold">
+                                Pukul {{ $presensiHariIni->jam_pulang }} WIB
                                 @if($durasiKerja)
-                                    · Durasi kerja hari ini: <b>{{ $durasiKerja }}</b>
+                                    <span class="text-[11px] font-normal text-blue-600">({{ $durasiKerja }})</span>
                                 @endif
-                                . Kerja bagus, sampai jumpa besok! 👍
                             </p>
                         </div>
-                    </div>
-                @elseif(!$presensiHariIni || !$presensiHariIni->jam_masuk)
-                    {{-- Belum absen masuk --}}
-                    <div class="bg-gray-50 border border-gray-200 text-gray-500 p-4 rounded-xl text-center text-sm font-medium">
-                        Anda belum absen masuk hari ini.
-                        <p class="text-xs font-normal mt-1">Lakukan presensi masuk terlebih dahulu.</p>
-                    </div>
-                @elseif(!$logbookHariIni)
-                    {{-- Belum isi logbook: wajib dulu sebelum keluar --}}
-                    <div class="bg-orange-50 border border-orange-200 text-orange-800 p-4 rounded-xl flex items-center gap-3">
-                        <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <div>
-                            <p class="font-semibold text-sm">Isi Logbook Dulu</p>
-                            <p class="text-xs mt-0.5">Anda wajib mengisi logbook sebelum absen keluar.</p>
-                            @if($adaLogbook)
-                                <a href="{{ route('mahasiswa.logbook.index') }}" class="inline-flex items-center gap-1 mt-2 text-xs font-bold text-orange-700 underline underline-offset-2 hover:text-orange-900">
-                                    Isi Logbook Sekarang →
-                                </a>
-                            @endif
+                    @elseif(!$presensiHariIni || !$presensiHariIni->jam_masuk)
+                        <div class="p-2.5 bg-gray-50 border border-gray-150 rounded-xl text-center">
+                            <p class="text-[11px] text-gray-500">Belum presensi masuk hari ini</p>
                         </div>
-                    </div>
-                @else
-                    {{-- Semua syarat terpenuhi: tampilkan tombol --}}
-                    <button type="button" class="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300 hover:-translate-y-0.5 flex justify-center items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        Absen Keluar Sekarang
-                    </button>
-                    <p class="text-[11px] text-gray-400 text-center mt-2">Logbook hari ini sudah terisi. Terima kasih! 🙌</p>
-                @endif
+                    @elseif(!$logbookHariIni)
+                        <a href="{{ route('mahasiswa.logbook.index') }}"
+                           class="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <span>Isi Logbook Dulu</span>
+                        </a>
+                    @else
+                        <a href="{{ route('mahasiswa.presensi.index') }}"
+                           class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
+                            </svg>
+                            <span>Lakukan Presensi Keluar</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- 4 Stat KPI Minimalis --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {{-- Total Presensi --}}
+        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-semibold text-gray-400">Total Presensi</p>
+                <p class="text-xl font-extrabold text-gray-900 mt-0.5">{{ $totalPresensi }}</p>
+                <p class="text-[10.5px] text-gray-400">hari hadir</p>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- ================= STATISTIK ================= -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8 anim-fade-up anim-delay-2">
-    <!-- Total Presensi -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium">Total Presensi</p>
-            <h4 class="text-2xl font-extrabold text-gray-800">{{ $totalPresensi }}</h4>
-            <p class="text-[11px] text-gray-400">hari kehadiran tercatat</p>
-        </div>
-    </div>
-
-    <!-- Total Logbook -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium">Total Logbook</p>
-            <h4 class="text-2xl font-extrabold text-gray-800">{{ $totalLogbook }}</h4>
-            <p class="text-[11px] text-gray-400">entri aktivitas harian</p>
-        </div>
-    </div>
-
-    <!-- Total Izin -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium">Total Izin</p>
-            <h4 class="text-2xl font-extrabold text-gray-800">{{ $totalIzin }}</h4>
-            <p class="text-[11px] text-gray-400">pengajuan izin</p>
-        </div>
-    </div>
-
-    <!-- Rata-rata Masuk -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium">Rata-rata Masuk</p>
-            <h4 class="text-2xl font-extrabold text-gray-800">{{ $rataRataFormat }}</h4>
-            <p class="text-[11px] text-gray-400">jam kehadiran harian</p>
-        </div>
-    </div>
-</div>
-
-<!-- ================= PROGRES MAGANG + MENU CEPAT ================= -->
-<div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8 anim-fade-up anim-delay-3">
-    <!-- Progres Magang -->
-    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2">📈 Progres Magang</h3>
-            <span class="text-2xl font-extrabold text-indigo-600">{{ $progressMagang }}%</span>
-        </div>
-
-        <div class="w-full bg-indigo-100 rounded-full h-3 overflow-hidden">
-            <div class="h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700" style="width: {{ $progressMagang }}%;"></div>
-        </div>
-        <div class="flex justify-between mt-2 text-xs text-gray-400">
-            <span>Mulai: {{ $tglIndo($mulai) }}</span>
-            <span>Selesai: {{ $tglIndo($selesai) }}</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mt-5">
-            <div class="bg-indigo-50 rounded-xl p-3 text-center">
-                <p class="text-xs text-gray-500">Hari Berjalan</p>
-                <p class="text-lg font-bold text-indigo-700">{{ $hariBerjalan }} hari</p>
+        {{-- Total Logbook --}}
+        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
             </div>
-            <div class="bg-purple-50 rounded-xl p-3 text-center">
-                <p class="text-xs text-gray-500">Sisa Hari</p>
-                <p class="text-lg font-bold text-purple-700">{{ $sisaHari }} hari</p>
+            <div>
+                <p class="text-[11px] font-semibold text-gray-400">Total Logbook</p>
+                <p class="text-xl font-extrabold text-gray-900 mt-0.5">{{ $totalLogbook }}</p>
+                <p class="text-[10.5px] text-gray-400">aktivitas tercatat</p>
+            </div>
+        </div>
+
+        {{-- Total Izin --}}
+        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-semibold text-gray-400">Izin Disetujui</p>
+                <p class="text-xl font-extrabold text-gray-900 mt-0.5">{{ $totalIzin }}</p>
+                <p class="text-[10.5px] text-gray-400">pengajuan izin</p>
+            </div>
+        </div>
+
+        {{-- Rata-rata Masuk --}}
+        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-semibold text-gray-400">Rata-rata Masuk</p>
+                <p class="text-xl font-extrabold text-gray-900 mt-0.5">{{ $rataRataFormat }}</p>
+                <p class="text-[10.5px] text-gray-400">WIB</p>
             </div>
         </div>
     </div>
 
-    <!-- Menu Cepat -->
-    <div class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h3 class="font-bold text-gray-800 mb-4">⚡ Menu Cepat</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    {{-- Menu Akses Cepat --}}
+    <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <h2 class="text-sm font-bold text-gray-900 mb-4">Akses Cepat</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             @foreach ($menuCepat as $menu)
-                <a href="{{ $menu['href'] }}" class="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/50 hover:-translate-y-0.5 transition-all duration-300 group">
-                    <div class="w-11 h-11 rounded-xl {{ $menu['ikonBg'] }} flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $menu['ikon'] }}"></path></svg>
+                <a href="{{ $menu['href'] }}" class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/40 transition group">
+                    <div class="w-10 h-10 rounded-xl {{ $menu['ikonBg'] }} flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $menu['ikon'] }}"/>
+                        </svg>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-sm text-gray-800">{{ $menu['judul'] }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ $menu['desk'] }}</p>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-gray-900 group-hover:text-orange-600 transition">{{ $menu['judul'] }}</p>
+                        <p class="text-[11px] text-gray-400 truncate">{{ $menu['desk'] }}</p>
                     </div>
-                    <svg class="w-4 h-4 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </a>
             @endforeach
         </div>
     </div>
-</div>
 
-<!-- ================= PENGINGAT ================= -->
-<div class="anim-fade-up anim-delay-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-5 flex items-start gap-3">
-    <span class="text-xl leading-none">💡</span>
-    <p class="text-sm text-amber-800">
-        <b>Pengingat:</b> Logbook wajib diisi setiap hari sebelum menekan tombol <b>Absen Keluar</b>.
-        Lengkapi aktivitas Anda hari ini agar presensi pulang tidak terhambat.
-    </p>
-</div>
-
-<!-- ================= LOGBOOK TERAKHIR (OPSIONAL) =================
-     Bagian ini otomatis muncul setelah fitur logbook selesai dibuat dan
-     controller mengirim variabel $logbookTerbaru (koleksi 5 data terbaru). -->
-@isset($logbookTerbaru)
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-8 anim-fade-up">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2">📝 Logbook Terakhir</h3>
-            @if($adaLogbook)
-                <a href="{{ route('mahasiswa.logbook.index') }}" class="text-sm text-indigo-600 font-medium hover:text-indigo-800">Lihat semua →</a>
-            @endif
-        </div>
-        <div class="space-y-3">
-            @forelse($logbookTerbaru as $item)
-                <div class="flex items-start gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
-                        {{ optional($item->created_at)->format('d') ?? '-' }}
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-800 line-clamp-2">{{ $item->kegiatan ?? $item->deskripsi ?? '-' }}</p>
-                        <p class="text-xs text-gray-400 mt-0.5">{{ optional($item->created_at)->translatedFormat('d F Y') }}</p>
-                    </div>
+    {{-- Logbook Terbaru --}}
+    @if(isset($logbookTerbaru) && $logbookTerbaru->isNotEmpty())
+        <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
+                <div>
+                    <h2 class="text-sm font-bold text-gray-900">Aktivitas Logbook Terbaru</h2>
+                    <p class="text-[11px] text-gray-400">Catatan kegiatan harian terakhir Anda</p>
                 </div>
-            @empty
-                <p class="text-sm text-gray-400 text-center py-4">Belum ada logbook. Mulai catat aktivitasmu hari ini! 🚀</p>
-            @endforelse
+                <a href="{{ route('mahasiswa.logbook.index') }}" class="text-xs font-semibold text-orange-600 hover:text-orange-700">
+                    Lihat Semua
+                </a>
+            </div>
+
+            <div class="divide-y divide-gray-100">
+                @foreach($logbookTerbaru as $lb)
+                    <div class="py-3 flex items-center justify-between gap-4">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-gray-800 truncate">{{ $lb->kegiatan }}</span>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-600">
+                                    {{ $lb->tim }}
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ $lb->deskripsi }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-medium text-gray-600">{{ \Carbon\Carbon::parse($lb->tanggal)->isoFormat('D MMM Y') }}</span>
+                            <div class="mt-0.5">
+                                @if($lb->status === \App\Enums\StatusLogbook::Draft || $lb->status === 'draft')
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Draft</span>
+                                @elseif($lb->status === \App\Enums\StatusLogbook::Approved || $lb->status === 'approved')
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Disetujui</span>
+                                @else
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">Terkirim</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
-    </div>
-@endisset
+    @endif
 
-{{-- Jam live --}}
+</div>
+
 <script>
-    (function () {
-        var el = document.getElementById('liveClock');
+    function updateClock() {
+        const el = document.getElementById('liveClock');
         if (!el) return;
-        function tick() {
-            try {
-                el.textContent = new Date().toLocaleTimeString('id-ID', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    timeZone: 'Asia/Jakarta'
-                });
-            } catch (e) {
-                el.textContent = new Date().toLocaleTimeString('id-ID');
-            }
-        }
-        tick();
-        setInterval(tick, 1000);
-    })();
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        el.textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 </script>
-
 @endsection
