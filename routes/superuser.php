@@ -13,6 +13,7 @@ Route::middleware(['auth', 'verified', 'role:super_user'])
         
         // Fitur Permohonan
         Route::get('/permohonan', [PermohonanController::class, 'index'])->name('permohonan.index');
+        Route::get('/permohonan/{permohonan}', [PermohonanController::class, 'show'])->name('permohonan.show');
         Route::post('/permohonan/{permohonan}/approve', [PermohonanController::class, 'approve'])->name('permohonan.approve');
         Route::post('/permohonan/{permohonan}/reject', [PermohonanController::class, 'reject'])->name('permohonan.reject');
         

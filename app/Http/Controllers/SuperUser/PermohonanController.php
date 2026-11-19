@@ -12,12 +12,19 @@ class PermohonanController extends Controller
 {
     public function index()
     {
-        // Hanya tampilkan yang sudah di-review admin, atau semua data
-        $permohonan = PermohonanMagang::with('user.mahasiswaProfile')
+        // Ambil semua data permohonan, urutkan dari yang terbaru
+        $permohonan = PermohonanMagang::with(['user.mahasiswaProfile', 'dokumens'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return view('superuser.permohonan.index', compact('permohonan'));
+    }
+
+    public function show(PermohonanMagang $permohonan)
+    {
+        // Load relasi profil dan dokumen
+        $permohonan->load(['user.mahasiswaProfile', 'dokumens']);
+        return view('superuser.permohonan.show', compact('permohonan'));
     }
 
     public function approve(Request $request, PermohonanMagang $permohonan)
@@ -27,7 +34,7 @@ class PermohonanController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Update status permohonan
+            // 1. Update status permohonan menjadi approved
             $permohonan->update([
                 'status' => 'approved',
                 'catatan_superuser' => $request->catatan_superuser,
@@ -35,7 +42,7 @@ class PermohonanController extends Controller
                 'approved_at' => now(),
             ]);
 
-            // 2. Buat data Magang (Aktif)
+            // 2. Buat data Magang (Otomatis aktif)
             Magang::updateOrCreate(
                 ['user_id' => $permohonan->user_id],
                 [
@@ -45,12 +52,12 @@ class PermohonanController extends Controller
                 ]
             );
 
-            // 3. Ubah Role User menjadi Mahasiswa
+            // 3. Ubah Role Pendaftar menjadi Mahasiswa
             $permohonan->user->syncRoles(['mahasiswa']);
 
             DB::commit();
 
-            return back()->with('success', 'Pendaftar berhasil disetujui dan diubah menjadi Mahasiswa Magang!');
+            return redirect()->route('superuser.permohonan.index')->with('success', 'Pendaftar berhasil disetujui dan diubah menjadi Mahasiswa Magang!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyetujui: ' . $e->getMessage());
@@ -66,6 +73,6 @@ class PermohonanController extends Controller
             'catatan_superuser' => $request->catatan_superuser,
         ]);
 
-        return back()->with('success', 'Pendaftaran berhasil ditolak.');
+        return redirect()->route('superuser.permohonan.index')->with('success', 'Pendaftaran berhasil ditolak.');
     }
 }
