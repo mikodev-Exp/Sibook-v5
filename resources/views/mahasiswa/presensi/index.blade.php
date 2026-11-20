@@ -258,114 +258,118 @@
     </div>
 
     {{-- RIWAYAT PRESENSI --}}
-    <div id="riwayat-presensi-container"
-         data-async-container
-         @click="SiBookAsync.handleClick($event, 'riwayat-presensi-container')"
-         class="bg-white rounded-2xl border border-gray-150 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
+<div id="riwayat-presensi-container"
+     data-async-container
+     @click="SiBookAsync.handleClick($event, 'riwayat-presensi-container')"
+     class="bg-white rounded-2xl border border-gray-150 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
+    
+    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+        <div>
+            <h2 class="text-sm font-bold text-gray-900">Riwayat Presensi</h2>
+            <p class="text-[11px] text-gray-400 mt-0.5">Rekap kehadiran Anda per bulan</p>
+        </div>
         
-        <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <div>
-                <h2 class="text-sm font-bold text-gray-900">Riwayat Presensi</h2>
-                <p class="text-[11px] text-gray-400 mt-0.5">Rekap kehadiran Anda per bulan</p>
-            </div>
-            
-            <form method="GET" action="{{ url()->current() }}" 
-                  @submit.prevent="SiBookAsync.handleFormSubmit($event, 'riwayat-presensi-container')"
-                  class="flex items-center gap-2">
-                <input type="month" name="bulan" value="{{ request('bulan', now()->format('Y-m')) }}"
-                       @change="SiBookAsync.handleFormSubmit($event, 'riwayat-presensi-container')"
-                       class="text-xs border-gray-200 rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer text-gray-700">
-                @if(request('bulan'))
-                    <a href="{{ url()->current() }}" class="text-xs text-gray-400 hover:text-gray-700 underline">Reset</a>
-                @endif
-            </form>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-[13px]">
-                <thead>
-                    <tr class="border-b border-gray-100 font-semibold text-gray-700 bg-gray-50/50">
-                        <th class="py-3 px-5">Tanggal</th>
-                        <th class="py-3 px-3">Jam Masuk</th>
-                        <th class="py-3 px-3">Jam Pulang</th>
-                        <th class="py-3 px-3">Durasi</th>
-                        <th class="py-3 px-5 text-right">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-gray-800">
-                    @forelse($riwayat as $row)
-                        @php
-                            $durasiBaris = null;
-                            if ($row->jam_masuk && $row->jam_pulang) {
-                                $menitBaris = (int) abs(\Carbon\Carbon::parse($row->jam_pulang)->diffInMinutes(\Carbon\Carbon::parse($row->jam_masuk)));
-                                $durasiBaris = intdiv($menitBaris, 60) . 'j ' . ($menitBaris % 60) . 'm';
-                            }
-                        @endphp
-                        <tr class="hover:bg-gray-50/60 transition">
-                            <td class="py-3.5 px-5 font-semibold text-gray-900 text-xs">
-                                {{ \Carbon\Carbon::parse($row->tanggal)->isoFormat('D MMM Y') }}
-                            </td>
-                            <td class="py-3.5 px-3 text-xs text-gray-700">
-                                @if($row->jam_masuk)
-                                    <span class="font-medium">{{ $row->jam_masuk }}</span>
-                                @else
-                                    <span class="text-gray-300">-</span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 px-3 text-xs text-gray-700">
-                                @if($row->jam_pulang)
-                                    <span class="font-medium">{{ $row->jam_pulang }}</span>
-                                @else
-                                    <span class="text-gray-300">-</span>
-                                @endif
-                            </td>
-                            <td class="py-3.5 px-3 text-xs text-gray-500">
-                                {{ $durasiBaris ?? '-' }}
-                            </td>
-                            <td class="py-3.5 px-5 text-right whitespace-nowrap">
-                                @if($row->status_verifikasi === 'pending')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        Menunggu Verifikasi
-                                    </span>
-                                @else
-                                    <div class="inline-flex items-center gap-1">
-                                        @if($row->status == 'terlambat')
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Terlambat</span>
-                                        @elseif($row->status == 'izin')
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">Izin</span>
-                                        @else
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Tepat Waktu</span>
-                                        @endif
-
-                                        @if($row->keterangan == 'Pulang Terlalu Cepat')
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pulang Cepat</span>
-                                        @endif
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="py-12 text-center">
-                                <div class="flex flex-col items-center justify-center text-gray-400">
-                                    <svg class="w-10 h-10 mb-2 text-gray-300 stroke-[1.2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                    <p class="text-xs font-semibold text-gray-600">Belum ada riwayat presensi bulan ini</p>
-                                    <p class="text-[11px] text-gray-400 mt-0.5">Riwayat akan otomatis terisi setelah Anda melakukan presensi.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div class="p-4 border-t border-gray-100 bg-gray-50/40">
-            {{ $riwayat->withQueryString()->links() }}
-        </div>
+        <form method="GET" action="{{ url()->current() }}" 
+              @submit.prevent="SiBookAsync.handleFormSubmit($event, 'riwayat-presensi-container')"
+              class="flex items-center gap-2">
+            <input type="month" name="bulan" value="{{ request('bulan', now()->format('Y-m')) }}"
+                   @change="SiBookAsync.handleFormSubmit($event, 'riwayat-presensi-container')"
+                   class="text-xs border-gray-200 rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer text-gray-700">
+            @if(request('bulan'))
+                <a href="{{ url()->current() }}" class="text-xs text-gray-400 hover:text-gray-700 underline">Reset</a>
+            @endif
+        </form>
     </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-[13px]">
+            <thead>
+                <tr class="border-b border-gray-100 font-semibold text-gray-700 bg-gray-50/50">
+                    <th class="py-3 px-5">Tanggal</th>
+                    <th class="py-3 px-3">Jam Masuk</th>
+                    <th class="py-3 px-3">Jam Pulang</th>
+                    <th class="py-3 px-3">Durasi</th>
+                    <th class="py-3 px-5 text-right">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 text-gray-800">
+                @forelse($riwayat as $row)
+                    @php
+                        $durasiBaris = null;
+                        if ($row->jam_masuk && $row->jam_pulang) {
+                            $menitBaris = (int) abs(\Carbon\Carbon::parse($row->jam_pulang)->diffInMinutes(\Carbon\Carbon::parse($row->jam_masuk)));
+                            $durasiBaris = intdiv($menitBaris, 60) . 'j ' . ($menitBaris % 60) . 'm';
+                        }
+                    @endphp
+                    <tr class="hover:bg-gray-50/60 transition">
+                        <td class="py-3.5 px-5 font-semibold text-gray-900 text-xs">
+                            {{ \Carbon\Carbon::parse($row->tanggal)->isoFormat('D MMM Y') }}
+                        </td>
+                        <td class="py-3.5 px-3 text-xs text-gray-700">
+                            @if($row->jam_masuk)
+                                <span class="font-medium">{{ $row->jam_masuk }}</span>
+                            @else
+                                <span class="text-gray-300">-</span>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-3 text-xs text-gray-700">
+                            @if($row->jam_pulang)
+                                <span class="font-medium">{{ $row->jam_pulang }}</span>
+                            @else
+                                <span class="text-gray-300">-</span>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-3 text-xs text-gray-500">
+                            {{ $durasiBaris ?? '-' }}
+                        </td>
+                        <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                            @if($row->status_verifikasi === 'pending')
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Menunggu Verifikasi
+                                </span>
+                            @else
+                                <div class="inline-flex items-center gap-1">
+                                    @if($row->status === \App\Enums\StatusPresensi::Terlambat)
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Terlambat</span>
+                                    @elseif($row->status === \App\Enums\StatusPresensi::Izin)
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">Izin</span>
+                                    @elseif($row->status === \App\Enums\StatusPresensi::Sakit)
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">Sakit</span>
+                                    @elseif($row->status === \App\Enums\StatusPresensi::Alpha)
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-700 border border-gray-300">Alpha</span>
+                                    @else
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Tepat Waktu</span>
+                                    @endif
+
+                                    @if($row->keterangan == 'Pulang Terlalu Cepat')
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pulang Cepat</span>
+                                    @endif
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                <svg class="w-10 h-10 mb-2 text-gray-300 stroke-[1.2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-gray-600">Belum ada riwayat presensi bulan ini</p>
+                                <p class="text-[11px] text-gray-400 mt-0.5">Riwayat akan otomatis terisi setelah Anda melakukan presensi.</p>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-4 border-t border-gray-100 bg-gray-50/40">
+        {{ $riwayat->withQueryString()->links() }}
+    </div>
+</div>
 
     {{-- MODAL KAMERA --}}
     <div x-show="cameraOpen" x-cloak

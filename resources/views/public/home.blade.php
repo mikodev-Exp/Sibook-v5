@@ -70,7 +70,13 @@
                     
                     <!-- Ilustrasi / Gambar -->
                     <div class="hidden lg:block relative">
-                        <img src="https://illustrations.popsy.co/indigo/student-going-to-school.svg" alt="Ilustrasi Mahasiswa" class="w-full h-auto drop-shadow-xl">
+                    <!-- Efek dekorasi di belakang foto -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl transform rotate-3 scale-105 opacity-20 blur-lg"></div>
+    
+                        <!-- Foto Utama -->
+                        <img src="{{ asset('images/hero-image.jpeg') }}" 
+                            alt="Mahasiswa Magang BPS" 
+                            class="relative z-10 w-full max-h-[500px] object-cover rounded-3xl shadow-2xl border-4 border-white">
                     </div>
                 </div>
             </div>

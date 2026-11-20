@@ -72,22 +72,24 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-800">
                     <?php $__empty_1 = true; $__currentLoopData = $riwayat; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <?php
+                                                <?php
                             $rowStatus = $row->status instanceof \App\Enums\StatusLogbook 
                                 ? $row->status->value 
                                 : (string) $row->status;
 
+                            // Mengubah warna: Draft (Kuning), Submitted (Hijau), Approved (Biru)
                             $badge = match($rowStatus) {
-                                'approved'  => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'approved'  => 'bg-indigo-50 text-indigo-700 border-indigo-200',
                                 'rejected'  => 'bg-rose-50 text-rose-700 border-rose-200',
-                                'submitted' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                default     => 'bg-amber-50 text-amber-700 border-amber-200',
+                                'submitted' => 'bg-emerald-50 text-emerald-700 border-emerald-200', // Hijau
+                                default     => 'bg-amber-50 text-amber-700 border-amber-200',       // Kuning
                             };
 
+                            // Mengubah label: Submitted menjadi Selesai
                             $label = match($rowStatus) {
                                 'approved'  => 'Disetujui Admin',
                                 'rejected'  => 'Ditolak',
-                                'submitted' => 'Terkirim',
+                                'submitted' => 'Selesai', // <-- Diubah dari 'Terkirim'
                                 default     => 'Draf',
                             };
                         ?>
@@ -134,8 +136,11 @@
                                     <span class="text-xs text-gray-400">-</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-3.5 px-3 whitespace-nowrap">
+                                                        <td class="py-3.5 px-3 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border <?php echo e($badge); ?>">
+                                    <?php if($rowStatus === 'submitted'): ?>
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    <?php endif; ?>
                                     <?php echo e($label); ?>
 
                                 </span>
@@ -154,7 +159,7 @@
                             </td>
                         </tr>
 
-                        
+                                                
                         <?php if($row->children && $row->children->isNotEmpty()): ?>
                             <?php $__currentLoopData = $row->children; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <?php
@@ -163,20 +168,22 @@
                                         : (string) $child->status;
 
                                     $cBadge = match($cStatus) {
-                                        'approved'  => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                        'approved'  => 'bg-indigo-50 text-indigo-700 border-indigo-200',
                                         'rejected'  => 'bg-rose-50 text-rose-700 border-rose-200',
-                                        'submitted' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                        'submitted' => 'bg-emerald-50 text-emerald-700 border-emerald-200', // Hijau
                                         default     => 'bg-amber-50 text-amber-700 border-amber-200',
                                     };
 
                                     $cLabel = match($cStatus) {
                                         'approved'  => 'Disetujui',
                                         'rejected'  => 'Ditolak',
-                                        'submitted' => 'Terkirim',
+                                        'submitted' => 'Selesai',
                                         default     => 'Draf',
                                     };
                                 ?>
                                 <tr class="bg-gray-50/70 hover:bg-gray-100/60 transition border-b border-gray-100">
+                                    
+                                    <!-- KOLOM 1: TANGGAL & WAKTU -->
                                     <td class="py-3 px-5 pl-10 relative whitespace-nowrap">
                                         <div class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
@@ -190,13 +197,19 @@
 
                                         </div>
                                     </td>
+
+                                    <!-- KOLOM 2: KEGIATAN & TIM -->
                                     <td class="py-3 px-4">
                                         <div class="text-xs text-gray-700 font-medium">Lanjutan: <?php echo e($child->kegiatan ?: $row->kegiatan); ?></div>
                                         <div class="text-[10.5px] text-gray-400"><?php echo e($child->tim); ?> - <?php echo e($child->jenis_gsbpm); ?></div>
                                     </td>
+
+                                    <!-- KOLOM 3: DESKRIPSI -->
                                     <td class="py-3 px-4 max-w-xs">
                                         <div class="text-xs text-gray-500 line-clamp-1" title="<?php echo e($child->deskripsi); ?>"><?php echo e($child->deskripsi); ?></div>
                                     </td>
+
+                                    <!-- KOLOM 4: BUKTI (Biarkan seperti aslinya) -->
                                     <td class="py-3 px-3 whitespace-nowrap">
                                         <?php if($child->link_bukti): ?>
                                             <a href="<?php echo e($child->link_bukti); ?>" target="_blank"
@@ -207,12 +220,19 @@
                                             <span class="text-xs text-gray-400">-</span>
                                         <?php endif; ?>
                                     </td>
+
+                                    <!-- KOLOM 5: STATUS (Di sinilah badge Selesai ditaruh) -->
                                     <td class="py-3 px-3 whitespace-nowrap">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold border <?php echo e($cBadge); ?>">
+                                            <?php if($cStatus === 'submitted'): ?>
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                            <?php endif; ?>
                                             <?php echo e($cLabel); ?>
 
                                         </span>
                                     </td>
+
+                                    <!-- KOLOM 6: AKSI -->
                                     <td class="py-3 px-5 text-right whitespace-nowrap space-x-1.5">
                                         <a href="<?php echo e(route('mahasiswa.logbook.edit', $child->id)); ?>"
                                            class="inline-block px-2 py-0.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs font-semibold">
