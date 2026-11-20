@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Presensi;
+use App\Models\User;
 use App\Services\ExportRekapService;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,10 @@ class PresensiController extends Controller
     {
         $query = Presensi::with(['user.mahasiswaProfile']);
 
-        if ($search = $request->input('search')) {
+        // Filter spesifik berdasarkan Mahasiswa terpilih
+        if ($userId = $request->input('user_id')) {
+            $query->where('user_id', $userId);
+        } elseif ($search = $request->input('search')) {
             $query->whereHas('user', function ($uq) use ($search) {
                 $uq->where('name', 'like', "%{$search}%");
             });
@@ -29,14 +33,23 @@ class PresensiController extends Controller
 
         $presensis = $query->orderBy('tanggal', 'desc')->orderBy('jam_masuk', 'desc')->paginate(15)->withQueryString();
 
-        return view('admin.presensi.index', compact('presensis'));
+        // Ambil daftar seluruh mahasiswa magang terdaftar (role mahasiswa) untuk opsi dropdown rekap
+        $daftarMahasiswa = User::role('mahasiswa')
+            ->with('mahasiswaProfile')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('admin.presensi.index', compact('presensis', 'daftarMahasiswa'));
     }
 
     public function export(Request $request, ExportRekapService $exportService)
     {
         $query = Presensi::with(['user.mahasiswaProfile']);
 
-        if ($search = $request->input('search')) {
+        // Filter berdasarkan Mahasiswa terpilih untuk diekspor
+        if ($userId = $request->input('user_id')) {
+            $query->where('user_id', $userId);
+        } elseif ($search = $request->input('search')) {
             $query->whereHas('user', function ($uq) use ($search) {
                 $uq->where('name', 'like', "%{$search}%");
             });

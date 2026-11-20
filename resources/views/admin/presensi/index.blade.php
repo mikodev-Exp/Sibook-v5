@@ -26,52 +26,112 @@
          class="bg-white rounded-2xl border border-gray-150 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col min-h-[580px] lg:min-h-[calc(100vh-220px)]">
         
         {{-- Toolbar Atas --}}
-        <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-gray-100">
-            <div class="text-xs text-gray-500 font-medium">
-                Monitoring presensi GPS dan luar kantor mahasiswa magang.
+        <div class="p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 border-b border-gray-100">
+            <div>
+                <div class="text-xs text-gray-500 font-medium">
+                    Monitoring presensi GPS dan luar kantor mahasiswa magang.
+                </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto justify-end">
-                {{-- Tombol Export Rekap Presensi --}}
+            <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 justify-end">
+                {{-- Form Filter Terpadu --}}
+                <form method="GET" action="{{ route('admin.presensi.index') }}" 
+                      @submit.prevent="SiBookAsync.handleFormSubmit($event, 'presensi-table-container')"
+                      class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+
+                    {{-- Filter Dropdown Mahasiswa Terdaftar Otomatis --}}
+                    <div class="relative min-w-[200px] sm:min-w-[220px]">
+                        <select name="user_id" 
+                                @change="SiBookAsync.handleFormSubmit($event, 'presensi-table-container')"
+                                class="w-full text-xs bg-white border border-gray-200 rounded-lg text-gray-800 py-1.5 pl-3 pr-7 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition shadow-sm font-medium">
+                            <option value="">Semua Mahasiswa ({{ $daftarMahasiswa->count() }})</option>
+                            @foreach($daftarMahasiswa as $mhs)
+                                <option value="{{ $mhs->id }}" {{ request('user_id') == $mhs->id ? 'selected' : '' }}>
+                                    {{ $mhs->name }} {{ $mhs->mahasiswaProfile?->universitas ? '— ' . $mhs->mahasiswaProfile->universitas : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Filter Tanggal --}}
+                    <input type="date" 
+                           name="tanggal" 
+                           value="{{ request('tanggal') }}" 
+                           @change="SiBookAsync.handleFormSubmit($event, 'presensi-table-container')"
+                           title="Filter Tanggal"
+                           class="text-xs bg-white border border-gray-200 rounded-lg text-gray-800 p-1.5 focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm cursor-pointer">
+
+                    {{-- Filter Status --}}
+                    <select name="status" 
+                            @change="SiBookAsync.handleFormSubmit($event, 'presensi-table-container')"
+                            class="text-xs bg-white border border-gray-200 rounded-lg text-gray-800 py-1.5 pl-2.5 pr-6 focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm font-medium">
+                        <option value="">Semua Status</option>
+                        <option value="hadir" {{ request('status') === 'hadir' ? 'selected' : '' }}>Hadir</option>
+                        <option value="terlambat" {{ request('status') === 'terlambat' ? 'selected' : '' }}>Terlambat</option>
+                        <option value="izin" {{ request('status') === 'izin' ? 'selected' : '' }}>Izin</option>
+                        <option value="sakit" {{ request('status') === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                    </select>
+
+                    {{-- Cari Nama / Kata Kunci --}}
+                    <div class="relative w-full sm:w-44">
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               name="search" 
+                               value="{{ request('search') }}"
+                               @input.debounce.300ms="SiBookAsync.handleSearch($event, 'presensi-table-container')"
+                               placeholder="Cari..." 
+                               class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition shadow-sm">
+                    </div>
+
+                    {{-- Reset Filter --}}
+                    @if(request('user_id') || request('tanggal') || request('status') || request('search'))
+                        <a href="{{ route('admin.presensi.index') }}" 
+                           class="text-xs font-semibold text-rose-600 hover:text-rose-800 underline px-1">
+                            Reset
+                        </a>
+                    @endif
+                </form>
+
+                {{-- Tombol Export Rekap Presensi (.xlsx) --}}
                 <a href="{{ route('admin.presensi.export', request()->all()) }}"
+                   title="Unduh rekapitulasi data presensi sesuai filter yang dipilih"
                    class="no-async inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition shadow-sm flex-shrink-0">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                     </svg>
                     <span>Export Rekap (.xlsx)</span>
                 </a>
-
-                {{-- Cari Mahasiswa --}}
-                <div class="relative w-full sm:w-56">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                    <input type="text" 
-                           name="search" 
-                           value="{{ request('search') }}"
-                           @input.debounce.300ms="SiBookAsync.handleSearch($event, 'presensi-table-container')"
-                           placeholder="Cari mahasiswa..." 
-                           class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition shadow-sm">
-                </div>
-
-                {{-- Filter Tanggal --}}
-                <form method="GET" action="{{ route('admin.presensi.index') }}" 
-                      @submit.prevent="SiBookAsync.handleFormSubmit($event, 'presensi-table-container')"
-                      class="flex items-center gap-2 w-full sm:w-auto">
-                    @if(request('search'))
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                    @endif
-                    <input type="date" name="tanggal" value="{{ request('tanggal') }}" 
-                           @change="SiBookAsync.handleFormSubmit($event, 'presensi-table-container')"
-                           class="text-xs bg-white border border-gray-200 rounded-lg text-gray-800 p-1.5 focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm cursor-pointer">
-                    @if(request('tanggal') || request('search'))
-                        <a href="{{ route('admin.presensi.index') }}" class="text-xs text-gray-500 hover:text-gray-800 underline ml-1">Reset</a>
-                    @endif
-                </form>
             </div>
         </div>
+
+        {{-- Banner Info Mahasiswa Terpilih untuk Rekap --}}
+        @if($selectedUser = $daftarMahasiswa->firstWhere('id', request('user_id')))
+            <div class="px-5 py-2.5 bg-orange-50/70 border-b border-orange-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#EA580C] animate-pulse"></span>
+                    <span class="text-gray-600">Rekap presensi mahasiswa:</span>
+                    <span class="font-bold text-gray-900">{{ $selectedUser->name }}</span>
+                    @if($selectedUser->mahasiswaProfile?->universitas)
+                        <span class="text-gray-500 font-medium">• {{ $selectedUser->mahasiswaProfile->universitas }}</span>
+                    @endif
+                    @if($selectedUser->mahasiswaProfile?->nim)
+                        <span class="text-gray-400 font-mono text-[11px]">(NIM: {{ $selectedUser->mahasiswaProfile->nim }})</span>
+                    @endif
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[11px] text-gray-500 font-medium">Total: {{ $presensis->total() }} catatan presensi</span>
+                    <a href="{{ route('admin.presensi.index', request()->except(['user_id', 'page'])) }}" 
+                       class="inline-flex items-center gap-1 font-semibold text-[#EA580C] hover:text-orange-800">
+                        <span>Tampilkan Semua</span>
+                        <span>&times;</span>
+                    </a>
+                </div>
+            </div>
+        @endif
 
         {{-- Tabel Presensi --}}
         <div class="overflow-x-auto flex-1">

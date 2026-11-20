@@ -180,6 +180,28 @@
                             @error('program_studi')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                         </div>
 
+                        {{-- Dosen Pembimbing --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                Nama Dosen Pembimbing <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="nama_dosen_pembimbing" value="{{ old('nama_dosen_pembimbing') }}" required
+                                   placeholder="Nama lengkap & gelar dosen pembimbing"
+                                   class="w-full text-xs bg-white border border-gray-200 rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition">
+                            @error('nama_dosen_pembimbing')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        {{-- No. HP Dosen Pembimbing --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                No. HP / WhatsApp Dosen Pembimbing <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="no_hp_dosen_pembimbing" value="{{ old('no_hp_dosen_pembimbing') }}" required inputmode="numeric"
+                                   placeholder="Contoh: 081234567890"
+                                   class="w-full text-xs bg-white border border-gray-200 rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition">
+                            @error('no_hp_dosen_pembimbing')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
                         {{-- Status Konversi SKS --}}
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 mb-1.5">
@@ -187,15 +209,15 @@
                             </label>
                             <div class="grid grid-cols-2 gap-2">
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="status_konversi" value="1" required class="peer sr-only" {{ old('status_konversi') == '0' ? 'checked' : '' }}>
+                                    <input type="radio" name="status_konversi" value="1" required class="peer sr-only" {{ old('status_konversi', '1') == '1' ? 'checked' : '' }}>
                                     <div class="px-3 py-2 text-center rounded-lg border border-gray-200 text-xs font-medium text-gray-600 transition peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white">
-                                        Ya
+                                        Ya (Konversi SKS)
                                     </div>
                                 </label>
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="status_konversi" value="0" required class="peer sr-only" {{ old('status_konversi') == '1' ? 'checked' : '' }}>
+                                    <input type="radio" name="status_konversi" value="0" required class="peer sr-only" {{ old('status_konversi') === '0' ? 'checked' : '' }}>
                                     <div class="px-3 py-2 text-center rounded-lg border border-gray-200 text-xs font-medium text-gray-600 transition peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white">
-                                        Tidak
+                                        Tidak (Reguler)
                                     </div>
                                 </label>
                             </div>
@@ -232,6 +254,21 @@
                             @error('tanggal_selesai')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                         </div>
 
+                        {{-- Kotak Info Durasi Minimal --}}
+                        <div id="durasiInfoBox" class="sm:col-span-2 text-xs p-3 rounded-xl border bg-blue-50/80 border-blue-200 text-blue-900 flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="space-y-0.5">
+                                <p class="font-bold text-[12px]">Ketentuan Durasi Magang:</p>
+                                <p class="text-[11.5px] text-blue-800 leading-relaxed" id="durasiInfoDesc">
+                                    • Status Konversi SKS (Ya): Minimal <b>3 bulan</b> (terhitung kalender termasuk Sabtu &amp; Minggu).<br>
+                                    • Status Non-Konversi (Tidak): Minimal <b>2,5 bulan</b> (2 bulan 15 hari).
+                                </p>
+                                <p id="durasiKalkulasi" class="text-[11.5px] font-semibold text-emerald-700 mt-1 hidden"></p>
+                            </div>
+                        </div>
+
                         {{-- BPJS --}}
                         <div class="sm:col-span-2">
                             <label class="block text-xs font-semibold text-gray-700 mb-1.5">
@@ -239,13 +276,13 @@
                             </label>
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="punya_bpjs" value="1" required class="peer sr-only" {{ old('punya_bpjs') == '0' ? 'checked' : '' }}>
+                                    <input type="radio" name="punya_bpjs" value="1" required class="peer sr-only" {{ old('punya_bpjs') === '1' ? 'checked' : '' }}>
                                     <div class="px-4 py-2 text-center rounded-lg border border-gray-200 text-xs font-medium text-gray-600 transition peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white">
                                         Sudah Punya
                                     </div>
                                 </label>
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="punya_bpjs" value="0" required class="peer sr-only" {{ old('punya_bpjs') == '1' ? 'checked' : '' }}>
+                                    <input type="radio" name="punya_bpjs" value="0" required class="peer sr-only" {{ old('punya_bpjs', '0') === '0' ? 'checked' : '' }}>
                                     <div class="px-4 py-2 text-center rounded-lg border border-gray-200 text-xs font-medium text-gray-600 transition peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:text-white">
                                         Belum Punya
                                     </div>
@@ -401,17 +438,68 @@
             form.addEventListener('change', perbaruiProgres);
             perbaruiProgres();
 
-            /* Batas Tanggal */
+            /* Batas Tanggal & Validasi Durasi (Minimal 3 Bulan jika Konversi Ya, 2.5 Bulan jika Tidak) */
             const tanggalMulai   = document.getElementById('tanggalMulai');
             const tanggalSelesai = document.getElementById('tanggalSelesai');
+            const durasiKalkulasi = document.getElementById('durasiKalkulasi');
             const hariIniISO     = new Date().toISOString().split('T')[0];
+
+            function getMinSelesaiDate(startDateStr, isKonversi) {
+                if (!startDateStr) return null;
+                const d = new Date(startDateStr);
+                if (isKonversi) {
+                    d.setMonth(d.getMonth() + 3);
+                } else {
+                    d.setMonth(d.getMonth() + 2);
+                    d.setDate(d.getDate() + 15);
+                }
+                return d;
+            }
+
+            function formatTanggalID(d) {
+                return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            function perbaruiBatasTanggalSelesai() {
+                if (!tanggalMulai || !tanggalSelesai) return;
+
+                const radKonversi = form.querySelector('input[name="status_konversi"]:checked');
+                const isKonversi = radKonversi ? radKonversi.value === '1' : true;
+
+                if (tanggalMulai.value) {
+                    const minDateObj = getMinSelesaiDate(tanggalMulai.value, isKonversi);
+                    const minISO = minDateObj.toISOString().split('T')[0];
+                    tanggalSelesai.min = minISO;
+
+                    const minTeks = isKonversi ? '3 bulan' : '2,5 bulan';
+                    if (durasiKalkulasi) {
+                        durasiKalkulasi.classList.remove('hidden');
+                        durasiKalkulasi.innerHTML = `Durasi minimal: <b>${minTeks}</b>. Selesai paling awal: <b>${formatTanggalID(minDateObj)}</b>.`;
+                    }
+
+                    if (tanggalSelesai.value && tanggalSelesai.value < minISO) {
+                        tanggalSelesai.setCustomValidity(`Untuk status konversi ${isKonversi ? 'Ya' : 'Tidak'}, durasi magang minimal ${minTeks} (paling awal ${formatTanggalID(minDateObj)}).`);
+                    } else {
+                        tanggalSelesai.setCustomValidity('');
+                    }
+                } else {
+                    tanggalSelesai.min = hariIniISO;
+                    if (durasiKalkulasi) durasiKalkulasi.classList.add('hidden');
+                    tanggalSelesai.setCustomValidity('');
+                }
+            }
 
             if (tanggalMulai) {
                 tanggalMulai.min = hariIniISO;
-                tanggalMulai.addEventListener('change', function () {
-                    if (this.value) tanggalSelesai.min = this.value;
-                });
+                tanggalMulai.addEventListener('change', perbaruiBatasTanggalSelesai);
             }
+            if (tanggalSelesai) {
+                tanggalSelesai.addEventListener('change', perbaruiBatasTanggalSelesai);
+            }
+
+            const radiosKonversi = form.querySelectorAll('input[name="status_konversi"]');
+            radiosKonversi.forEach(r => r.addEventListener('change', perbaruiBatasTanggalSelesai));
+            perbaruiBatasTanggalSelesai();
 
             /* Dropzone File */
             const dropzone   = document.getElementById('dropzone');

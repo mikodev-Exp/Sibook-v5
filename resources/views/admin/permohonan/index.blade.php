@@ -159,27 +159,60 @@
                             {{-- Pemohon --}}
                             <td class="py-3.5 pl-5 pr-3">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                                        <span class="text-[10px] font-bold text-orange-600">{{ strtoupper(substr($user?->name ?? '?', 0, 2)) }}</span>
-                                    </div>
+                                    @if($profile?->link_pasfoto)
+                                        <img src="{{ $profile->link_pasfoto }}" alt="Foto" class="w-8 h-8 rounded-full object-cover border border-orange-200 shrink-0" onerror="this.onerror=null;this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden');">
+                                        <div class="w-8 h-8 rounded-full bg-orange-100 hidden items-center justify-center shrink-0">
+                                            <span class="text-[10px] font-bold text-orange-600">{{ strtoupper(substr($user?->name ?? '?', 0, 2)) }}</span>
+                                        </div>
+                                    @else
+                                        <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                                            <span class="text-[10px] font-bold text-orange-600">{{ strtoupper(substr($user?->name ?? '?', 0, 2)) }}</span>
+                                        </div>
+                                    @endif
                                     <div>
                                         <div class="font-semibold text-gray-900 leading-tight">{{ $user?->name ?? '-' }}</div>
-                                        <div class="text-[11px] text-gray-400">{{ $user?->email ?? '-' }}</div>
+                                        <div class="text-[11px] text-gray-500 flex items-center gap-1.5 mt-0.5">
+                                            <span>{{ $profile?->no_hp ?? $user?->email }}</span>
+                                            @if($profile?->jenis_kelamin)
+                                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-600 font-medium">{{ $profile->jenis_kelamin === 'Laki-laki' ? 'L' : 'P' }}</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </td>
 
-                            {{-- Institusi --}}
+                            {{-- Institusi & Dosen --}}
                             <td class="py-3.5 px-3">
                                 <div class="font-medium text-gray-800 leading-tight">{{ $profile?->universitas ?? '-' }}</div>
                                 <div class="text-[11px] text-gray-400">{{ $profile?->program_studi ?? '-' }}</div>
+                                @if($profile?->nama_dosen_pembimbing)
+                                    <div class="text-[10.5px] text-orange-700 font-medium mt-1 flex items-center gap-1">
+                                        <span class="text-gray-400">Dosen:</span>
+                                        <span class="truncate max-w-[170px]" title="{{ $profile->nama_dosen_pembimbing }}">{{ $profile->nama_dosen_pembimbing }}</span>
+                                        @if($profile?->no_hp_dosen_pembimbing)
+                                            <span class="text-gray-400 text-[9.5px]">({{ $profile->no_hp_dosen_pembimbing }})</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
 
-                            {{-- Periode --}}
+                            {{-- Periode & Konversi SKS --}}
                             <td class="py-3.5 px-3 text-gray-500 whitespace-nowrap">
                                 @if($p->tanggal_mulai_rencana && $p->tanggal_selesai_rencana)
-                                    <div>{{ \Carbon\Carbon::parse($p->tanggal_mulai_rencana)->isoFormat('D MMM Y') }}</div>
-                                    <div class="text-[11px] text-gray-400">s/d {{ \Carbon\Carbon::parse($p->tanggal_selesai_rencana)->isoFormat('D MMM Y') }}</div>
+                                    @php
+                                        $dMulai = \Carbon\Carbon::parse($p->tanggal_mulai_rencana);
+                                        $dSelesai = \Carbon\Carbon::parse($p->tanggal_selesai_rencana);
+                                        $durasiHari = $dMulai->diffInDays($dSelesai) + 1;
+                                        $durasiBulan = round($durasiHari / 30, 1);
+                                    @endphp
+                                    <div class="font-medium text-gray-800">{{ $dMulai->isoFormat('D MMM Y') }}</div>
+                                    <div class="text-[11px] text-gray-400">s/d {{ $dSelesai->isoFormat('D MMM Y') }}</div>
+                                    <div class="flex items-center gap-1 mt-1">
+                                        <span class="text-[10px] px-1.5 py-0.2 rounded font-semibold {{ $profile?->status_konversi ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
+                                            {{ $profile?->status_konversi ? 'Konversi SKS' : 'Reguler' }}
+                                        </span>
+                                        <span class="text-[10px] text-gray-400">· {{ $durasiBulan }} bln</span>
+                                    </div>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif

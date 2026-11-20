@@ -185,12 +185,16 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {{-- Chart 1: Tren Kehadiran Mahasiswa (Line / Area Chart) --}}
-        <div class="anim-fade-up anim-delay-2 lg:col-span-2 bg-white rounded-3xl border border-gray-150 p-6 shadow-sm">
+        @php
+            $hasTrendData = (array_sum($trendHadir) + array_sum($trendTerlambat) + array_sum($trendIzin)) > 0;
+        @endphp
+        <div class="anim-fade-up anim-delay-2 lg:col-span-2 bg-white rounded-3xl border border-gray-150 p-6 shadow-sm flex flex-col justify-between">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
                 <div>
                     <h3 class="text-base font-bold text-gray-900">Tren Kehadiran Mahasiswa Magang</h3>
                     <p class="text-xs text-gray-500 mt-0.5">Statistik perbandingan hadir tepat waktu, terlambat, dan izin.</p>
                 </div>
+                @if($hasTrendData)
                 <div class="flex items-center gap-3 text-xs">
                     <span class="flex items-center gap-1.5 text-gray-600">
                         <span class="w-3 h-3 rounded-full bg-emerald-500"></span> Hadir
@@ -202,40 +206,69 @@
                         <span class="w-3 h-3 rounded-full bg-blue-500"></span> Izin
                     </span>
                 </div>
+                @endif
             </div>
 
-            <div class="relative h-72 w-full">
-                <canvas id="kehadiranChart"></canvas>
-            </div>
+            @if($hasTrendData)
+                <div class="relative h-72 w-full">
+                    <canvas id="kehadiranChart"></canvas>
+                </div>
+            @else
+                <div class="h-72 flex flex-col items-center justify-center text-center p-6 my-auto bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                    <div class="w-12 h-12 rounded-2xl bg-white border border-gray-150 flex items-center justify-center text-gray-400 mb-3 shadow-xs">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <p class="text-sm font-bold text-gray-700">Belum Ada Riwayat Presensi</p>
+                    <p class="text-xs text-gray-400 mt-1 max-w-sm">Grafik tren kehadiran akan tampil otomatis saat mahasiswa magang mulai mencatatkan presensi.</p>
+                </div>
+            @endif
         </div>
 
         {{-- Chart 2: Distribusi Kegiatan per Divisi / Tim (Doughnut Chart) --}}
+        @php
+            $hasTimData = !empty($timDistribution) && array_sum($timDistribution) > 0;
+        @endphp
         <div class="anim-fade-up anim-delay-3 bg-white rounded-3xl border border-gray-150 p-6 shadow-sm flex flex-col justify-between">
             <div class="mb-4 pb-3 border-b border-gray-100">
                 <h3 class="text-base font-bold text-gray-900">Distribusi Divisi / Tim</h3>
                 <p class="text-xs text-gray-500 mt-0.5">Proporsi aktivitas logbook berdasarkan unit penugasan.</p>
             </div>
 
-            <div class="relative h-56 w-full flex items-center justify-center my-auto">
-                <canvas id="divisiChart"></canvas>
-            </div>
+            @if($hasTimData)
+                <div class="relative h-56 w-full flex items-center justify-center my-auto">
+                    <canvas id="divisiChart"></canvas>
+                </div>
 
-            <div class="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-gray-600">
-                @foreach($timDistribution as $namaTim => $total)
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: {{ match($namaTim) {
-                            'IPDS' => '#0FAF62',
-                            'Humas' => '#3B82F6',
-                            'Sosial' => '#EF4444',
-                            'PSS' => '#7C3AED',
-                            'Neraca' => '#F59E0B',
-                            default => '#6B7280'
-                        } }}"></span>
-                        <span class="font-medium text-gray-700">{{ $namaTim }}</span>
-                        <span class="text-gray-400">({{ $total }})</span>
+                <div class="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-gray-600">
+                    @foreach($timDistribution as $namaTim => $total)
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: {{ match($namaTim) {
+                                'IPDS' => '#0FAF62',
+                                'Humas' => '#3B82F6',
+                                'Sosial' => '#EF4444',
+                                'PSS' => '#7C3AED',
+                                'Neraca' => '#F59E0B',
+                                default => '#6B7280'
+                            } }}"></span>
+                            <span class="font-medium text-gray-700">{{ $namaTim }}</span>
+                            <span class="text-gray-400">({{ $total }})</span>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="h-64 flex flex-col items-center justify-center text-center p-6 my-auto bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                    <div class="w-12 h-12 rounded-2xl bg-white border border-gray-150 flex items-center justify-center text-gray-400 mb-3 shadow-xs">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
                     </div>
-                @endforeach
-            </div>
+                    <p class="text-sm font-bold text-gray-700">Belum Ada Data Logbook</p>
+                    <p class="text-xs text-gray-400 mt-1 max-w-[220px]">Proporsi divisi/tim akan otomatis muncul saat logbook kegiatan mulai masuk.</p>
+                </div>
+            @endif
         </div>
 
     </div>
@@ -344,7 +377,7 @@
                         </div>
                     @empty
                         <div class="py-8 text-center text-gray-400 text-xs">
-                            Data universitas mahasiswa belum lengkap.
+                            Belum ada data perguruan tinggi mahasiswa magang aktif.
                         </div>
                     @endforelse
                 </div>
