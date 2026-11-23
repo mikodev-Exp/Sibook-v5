@@ -36,6 +36,7 @@ class ExportRekapService
         // Calculate statistics
         $totalHadir = $user->presensis()->where('status', 'hadir')->count();
         $totalTerlambat = $user->presensis()->where('status', 'terlambat')->count();
+        $totalMenitTerlambat = $user->totalMenitTerlambat($bulan);
         $totalIzin = $user->presensis()->where('status', 'izin')->count() 
             + $user->perizinans()->where('status', 'approved')->count();
         $totalSakit = $user->presensis()->where('status', 'sakit')->count();
@@ -86,10 +87,11 @@ class ExportRekapService
         $sheet1->setCellValue('A9', 'STATISTIK KEHADIRAN:');
         $sheet1->getStyle('A9')->getFont()->setBold(true)->setSize(11);
 
-        $statHeaders = ['Hadir', 'Terlambat', 'Izin / Sakit', 'Alpha', 'Total Presensi', 'Persentase Kehadiran', 'Total Logbook'];
+        $statHeaders = ['Hadir', 'Hari Terlambat', 'Tanggungan Terlambat', 'Izin / Sakit', 'Alpha', 'Total Presensi', 'Persentase Kehadiran', 'Total Logbook'];
         $statValues = [
             $totalHadir,
             $totalTerlambat,
+            $totalMenitTerlambat . ' menit',
             $totalIzin + $totalSakit,
             $totalAlpha,
             $totalPresensi,
@@ -103,12 +105,12 @@ class ExportRekapService
             $sheet1->setCellValue($col . '11', $statValues[$idx]);
         }
 
-        $sheet1->getStyle('A10:G10')->applyFromArray([
+        $sheet1->getStyle('A10:H10')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E293B']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
-        $sheet1->getStyle('A11:G11')->applyFromArray([
+        $sheet1->getStyle('A11:H11')->applyFromArray([
             'font' => ['bold' => true, 'size' => 12],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F8FAFC']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -119,13 +121,13 @@ class ExportRekapService
         $sheet1->setCellValue('A13', 'RIWAYAT PRESENSI HARIAN:');
         $sheet1->getStyle('A13')->getFont()->setBold(true)->setSize(11);
 
-        $tableHeaders = ['No', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Tipe Presensi', 'Jarak Masuk (m)', 'Status', 'Keterangan'];
+        $tableHeaders = ['No', 'Tanggal', 'Jam Masuk', 'Keterlambatan', 'Jam Pulang', 'Tipe Presensi', 'Jarak Masuk (m)', 'Status', 'Keterangan'];
         foreach ($tableHeaders as $idx => $head) {
             $col = chr(65 + $idx);
             $sheet1->setCellValue($col . '14', $head);
         }
 
-        $sheet1->getStyle('A14:H14')->applyFromArray([
+        $sheet1->getStyle('A14:I14')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E06D28']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -135,39 +137,44 @@ class ExportRekapService
         foreach ($presensis as $idx => $row) {
             $statusStr = ucfirst($row->status?->value ?? (string) $row->status);
             $tipeStr = ucfirst(str_replace('_', ' ', $row->tipe_presensi ?? 'kantor'));
+            $terlambatStr = $row->menit_terlambat > 0 ? ($row->menit_terlambat . ' mnt') : '-';
 
             $sheet1->setCellValue('A' . $rowNum, $idx + 1);
             $sheet1->setCellValue('B' . $rowNum, \Carbon\Carbon::parse($row->tanggal)->translatedFormat('d F Y'));
             $sheet1->setCellValue('C' . $rowNum, $row->jam_masuk ? substr($row->jam_masuk, 0, 5) : '-');
-            $sheet1->setCellValue('D' . $rowNum, $row->jam_pulang ? substr($row->jam_pulang, 0, 5) : '-');
-            $sheet1->setCellValue('E' . $rowNum, $tipeStr);
-            $sheet1->setCellValue('F' . $rowNum, $row->jarak_masuk_m ? round($row->jarak_masuk_m) : '-');
-            $sheet1->setCellValue('G' . $rowNum, $statusStr);
-            $sheet1->setCellValue('H' . $rowNum, $row->keterangan ?? '-');
+            $sheet1->setCellValue('D' . $rowNum, $terlambatStr);
+            $sheet1->setCellValue('E' . $rowNum, $row->jam_pulang ? substr($row->jam_pulang, 0, 5) : '-');
+            $sheet1->setCellValue('F' . $rowNum, $tipeStr);
+            $sheet1->setCellValue('G' . $rowNum, $row->jarak_masuk_m ? round($row->jarak_masuk_m) : '-');
+            $sheet1->setCellValue('H' . $rowNum, $statusStr);
+            $sheet1->setCellValue('I' . $rowNum, $row->keterangan ?? '-');
 
             $sheet1->getStyle('A' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet1->getStyle('B' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet1->getStyle('C' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet1->getStyle('D' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet1->getStyle('E' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet1->getStyle('F' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $sheet1->getStyle('G' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet1->getStyle('F' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet1->getStyle('G' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet1->getStyle('H' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             $rowNum++;
         }
 
         if ($presensis->isEmpty()) {
             $sheet1->setCellValue('A15', 'Belum ada riwayat presensi tercatat.');
-            $sheet1->mergeCells('A15:H15');
+            $sheet1->mergeCells('A15:I15');
             $sheet1->getStyle('A15')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $rowNum = 16;
         }
 
-        $sheet1->getStyle('A14:H' . ($rowNum - 1))->applyFromArray([
+        $sheet1->getStyle('A14:I' . ($rowNum - 1))->applyFromArray([
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E2E8F0']]],
         ]);
 
-        foreach (range('A', 'H') as $col) {
+        foreach (range('A', 'I') as $col) {
+            $sheet1->getColumnDimension($col)->setAutoSize(true);
+        }
             $sheet1->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -266,7 +273,7 @@ class ExportRekapService
 
         $headers = [
             'No', 'Nama Mahasiswa', 'NIM', 'Universitas', 'Program Studi', 'Email', 'No HP', 
-            'Periode Mulai', 'Periode Selesai', 'Hadir', 'Terlambat', 'Izin/Sakit', 'Alpha', 
+            'Periode Mulai', 'Periode Selesai', 'Hadir', 'Hari Terlambat', 'Tanggungan Terlambat (Mnt)', 'Izin/Sakit', 'Alpha', 
             'Total Presensi', 'Persentase Kehadiran', 'Total Logbook'
         ];
 
@@ -296,6 +303,7 @@ class ExportRekapService
 
             $hadir = $mhs->presensis()->where('status', 'hadir')->count();
             $terlambat = $mhs->presensis()->where('status', 'terlambat')->count();
+            $totalMenit = $mhs->totalMenitTerlambat();
             $izin = $mhs->presensis()->where('status', 'izin')->count() + $mhs->perizinans()->where('status', 'approved')->count();
             $alpha = $mhs->presensis()->where('status', 'alpha')->count();
             $total = $mhs->presensis()->count();
@@ -313,23 +321,26 @@ class ExportRekapService
             $sheet->setCellValue('I' . $rowNum, $magang ? \Carbon\Carbon::parse($magang->tanggal_selesai)->format('d/m/Y') : '-');
             $sheet->setCellValue('J' . $rowNum, $hadir);
             $sheet->setCellValue('K' . $rowNum, $terlambat);
-            $sheet->setCellValue('L' . $rowNum, $izin);
-            $sheet->setCellValue('M' . $rowNum, $alpha);
-            $sheet->setCellValue('N' . $rowNum, $total);
-            $sheet->setCellValue('O' . $rowNum, $rate . '%');
-            $sheet->setCellValue('P' . $rowNum, $logbook);
+            $sheet->setCellValue('L' . $rowNum, $totalMenit);
+            $sheet->setCellValue('M' . $rowNum, $izin);
+            $sheet->setCellValue('N' . $rowNum, $alpha);
+            $sheet->setCellValue('O' . $rowNum, $total);
+            $sheet->setCellValue('P' . $rowNum, $rate . '%');
+            $sheet->setCellValue('Q' . $rowNum, $logbook);
 
             $sheet->getStyle('A' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('H' . $rowNum . ':P' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('H' . $rowNum . ':Q' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             $rowNum++;
         }
 
-        $sheet->getStyle('A5:P' . ($rowNum - 1))->applyFromArray([
+        $sheet->getStyle('A5:Q' . ($rowNum - 1))->applyFromArray([
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E2E8F0']]],
         ]);
 
-        foreach (range('A', 'P') as $col) {
+        foreach (range('A', 'Q') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -361,13 +372,13 @@ class ExportRekapService
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(11)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFE06D28'));
 
-        $headers = ['No', 'Nama Mahasiswa', 'NIM', 'Universitas', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Tipe Presensi', 'Jarak Masuk (m)', 'Status', 'Keterangan'];
+        $headers = ['No', 'Nama Mahasiswa', 'NIM', 'Universitas', 'Tanggal', 'Jam Masuk', 'Keterlambatan (Mnt)', 'Jam Pulang', 'Tipe Presensi', 'Jarak Masuk (m)', 'Status', 'Keterangan'];
         foreach ($headers as $idx => $title) {
             $col = chr(65 + $idx);
             $sheet->setCellValue($col . '5', $title);
         }
 
-        $sheet->getStyle('A5:K5')->applyFromArray([
+        $sheet->getStyle('A5:L5')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E293B']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -381,30 +392,31 @@ class ExportRekapService
             $sheet->setCellValue('D' . $rowNum, $p->user->mahasiswaProfile->universitas ?? '-');
             $sheet->setCellValue('E' . $rowNum, \Carbon\Carbon::parse($p->tanggal)->translatedFormat('d F Y'));
             $sheet->setCellValue('F' . $rowNum, $p->jam_masuk ? substr($p->jam_masuk, 0, 5) : '-');
-            $sheet->setCellValue('G' . $rowNum, $p->jam_pulang ? substr($p->jam_pulang, 0, 5) : '-');
-            $sheet->setCellValue('H' . $rowNum, ucfirst(str_replace('_', ' ', $p->tipe_presensi ?? 'kantor')));
-            $sheet->setCellValue('I' . $rowNum, $p->jarak_masuk_m ? round($p->jarak_masuk_m) : '-');
-            $sheet->setCellValue('J' . $rowNum, ucfirst($p->status?->value ?? (string) $p->status));
-            $sheet->setCellValue('K' . $rowNum, $p->keterangan ?? '-');
+            $sheet->setCellValue('G' . $rowNum, $p->menit_terlambat > 0 ? ($p->menit_terlambat . ' mnt') : '-');
+            $sheet->setCellValue('H' . $rowNum, $p->jam_pulang ? substr($p->jam_pulang, 0, 5) : '-');
+            $sheet->setCellValue('I' . $rowNum, ucfirst(str_replace('_', ' ', $p->tipe_presensi ?? 'kantor')));
+            $sheet->setCellValue('J' . $rowNum, $p->jarak_masuk_m ? round($p->jarak_masuk_m) : '-');
+            $sheet->setCellValue('K' . $rowNum, ucfirst($p->status?->value ?? (string) $p->status));
+            $sheet->setCellValue('L' . $rowNum, $p->keterangan ?? '-');
 
             $sheet->getStyle('A' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('E' . $rowNum . ':J' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('E' . $rowNum . ':K' . $rowNum)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             $rowNum++;
         }
 
         if ($presensis->isEmpty()) {
             $sheet->setCellValue('A6', 'Belum ada data presensi.');
-            $sheet->mergeCells('A6:K6');
+            $sheet->mergeCells('A6:L6');
             $sheet->getStyle('A6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $rowNum = 7;
         }
 
-        $sheet->getStyle('A5:K' . ($rowNum - 1))->applyFromArray([
+        $sheet->getStyle('A5:L' . ($rowNum - 1))->applyFromArray([
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E2E8F0']]],
         ]);
 
-        foreach (range('A', 'K') as $col) {
+        foreach (range('A', 'L') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 

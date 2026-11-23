@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\MahasiswaProfile;
 use App\Models\PermohonanMagang;
 use App\Models\PermohonanDokumen;
+use App\Services\WorkdayService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,21 +44,23 @@ class RegisterController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        // Validasi Durasi Minimal Berdasarkan Status Konversi
+        // Ambil status konversi (untuk disimpan ke profil mahasiswa)
         $statusKonversi = $request->boolean('status_konversi');
-        $tglMulai = Carbon::parse($request->tanggal_mulai);
+
+        // Validasi Durasi Minimal: minimal 65 hari kerja efektif (± 3 bulan)
+        // berlaku untuk semua status konversi (konversi maupun non-konversi)
+        $tglMulai   = Carbon::parse($request->tanggal_mulai);
         $tglSelesai = Carbon::parse($request->tanggal_selesai);
 
-        // Jika Konversi SKS (Ya): minimal 3 bulan
-        // Jika Non-Konversi (Tidak): minimal 2.5 bulan (2 bulan 15 hari)
-        $minSelesai = $statusKonversi
-            ? $tglMulai->copy()->addMonths(3)
-            : $tglMulai->copy()->addMonths(2)->addDays(15);
+        $hariKerja  = WorkdayService::hitungHariKerja($tglMulai, $tglSelesai);
+        $minSelesai = WorkdayService::tanggalSelesaiMinimal($tglMulai);
 
-        if ($tglSelesai->lt($minSelesai)) {
-            $minDurasiTeks = $statusKonversi ? '3 bulan' : '2,5 bulan';
+        if ($hariKerja < WorkdayService::MIN_WORKDAYS) {
             return back()->withErrors([
-                'tanggal_selesai' => "Durasi magang untuk status konversi " . ($statusKonversi ? "'Ya'" : "'Tidak'") . " minimal {$minDurasiTeks} (minimal selesai pada tanggal " . $minSelesai->translatedFormat('d F Y') . ")."
+                'tanggal_selesai' => "Periode magang minimal " . WorkdayService::MIN_WORKDAYS . " hari kerja efektif (tidak termasuk Sabtu, Minggu, dan hari libur nasional). "
+                    . "Dengan tanggal mulai " . $tglMulai->translatedFormat('d F Y') . ", tanggal selesai paling awal adalah "
+                    . $minSelesai->translatedFormat('d F Y') . ". "
+                    . "Saat ini baru " . $hariKerja . " hari kerja."
             ])->withInput();
         }
 

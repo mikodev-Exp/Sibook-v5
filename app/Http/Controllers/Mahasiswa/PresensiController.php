@@ -26,15 +26,28 @@ class PresensiController extends Controller
 
         $presensiHariIni = $user->presensis()->where('tanggal', today())->first();
         
-        // Riwayat dengan filter (bisa dikembangkan nanti)
-        $riwayat = $user->presensis()->orderBy('tanggal', 'desc')->paginate(10);
+        // Riwayat dengan filter (opsional per bulan)
+        $bulan = request('bulan');
+        $riwayatQuery = $user->presensis()->orderBy('tanggal', 'desc');
+        if ($bulan) {
+            $riwayatQuery->where('tanggal', 'like', "{$bulan}%");
+        }
+        $riwayat = $riwayatQuery->paginate(10);
 
         // Ambil titik kantor
         $kantorLat = (float) Pengaturan::get('kantor.lat', -7.2863000);
         $kantorLng = (float) Pengaturan::get('kantor.lng', 112.7358000);
         $radius = (int) Pengaturan::get('kantor.radius_m', 1000);
 
-        return view('mahasiswa.presensi.index', compact('presensiHariIni', 'riwayat', 'kantorLat', 'kantorLng', 'radius', 'magang'));
+        // Rekapitulasi Keterlambatan (Akumulasi dari awal magang hingga sekarang)
+        $totalMenitTerlambat = $user->totalMenitTerlambat();
+        $totalHariTerlambat = $user->presensis()->where('status', 'terlambat')->count();
+        $formattedTerlambat = $user->formattedTotalTerlambat();
+
+        return view('mahasiswa.presensi.index', compact(
+            'presensiHariIni', 'riwayat', 'kantorLat', 'kantorLng', 'radius', 'magang',
+            'totalMenitTerlambat', 'totalHariTerlambat', 'formattedTerlambat'
+        ));
     }
 
     public function storeMasuk(Request $request)
@@ -87,9 +100,9 @@ class PresensiController extends Controller
             return back()->with('error', "Anda berada di luar radius kantor. Jarak Anda: " . round($jarak) . " meter.");
         }
 
-        // Cek Keterlambatan (Batas 07:30)
+        // Cek Keterlambatan (Batas Toleransi 07:30:30)
         $jamSekarang = now();
-        $batasTerlambat = Carbon::createFromTimeString('07:30');
+        $batasTerlambat = Carbon::createFromTimeString('07:30:30');
         $status = $jamSekarang->greaterThan($batasTerlambat) ? 'terlambat' : 'hadir';
 
         Presensi::create([

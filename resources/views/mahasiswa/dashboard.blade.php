@@ -220,7 +220,7 @@
                                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                 <span class="text-xs font-bold text-emerald-800">TERCATAT MASUK</span>
                             </div>
-                            <p class="text-xs text-emerald-900 mt-1.5 font-bold">Pukul {{ $presensiHariIni->jam_masuk }} WIB</p>
+                            <p class="text-xs text-emerald-900 mt-1.5 font-bold">Pukul {{ substr($presensiHariIni->jam_masuk, 0, 5) }} WIB</p>
                         </div>
                     @else
                         <a href="{{ route('mahasiswa.presensi.index') }}"
@@ -255,7 +255,7 @@
                                 <span class="text-xs font-bold text-zinc-100">TERCATAT KELUAR</span>
                             </div>
                             <p class="text-xs text-zinc-300 mt-1.5 font-bold">
-                                Pukul {{ $presensiHariIni->jam_pulang }} WIB
+                                Pukul {{ substr($presensiHariIni->jam_pulang, 0, 5) }} WIB
                                 @if($durasiKerja)
                                     <span class="text-[11px] font-normal text-zinc-400 block mt-0.5">Durasi: {{ $durasiKerja }}</span>
                                 @endif
@@ -327,15 +327,25 @@
             </div>
         </div>
 
-        {{-- Rata-rata Masuk --}}
+        {{-- Rata-rata Masuk & Tanggungan Keterlambatan --}}
         <div class="bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-colors">
-            <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-wider block mb-2">RATA-RATA MASUK</span>
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-wider block">RATA-RATA MASUK</span>
+                @if(($totalMenitTerlambat ?? 0) > 0)
+                    <span class="text-[10px] font-mono-tag px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-semibold">
+                        +{{ $totalMenitTerlambat }}m
+                    </span>
+                @endif
+            </div>
             <div class="flex items-baseline justify-between">
                 <span class="text-2xl font-extrabold text-zinc-950 font-mono-tag">{{ $rataRataFormat }}</span>
                 <span class="text-xs font-mono-tag text-zinc-400">WIB</span>
             </div>
-            <div class="w-full bg-zinc-100 h-1.5 rounded-full mt-4 overflow-hidden">
-                <div class="bg-emerald-600 h-full rounded-full" style="width: 100%"></div>
+            <div class="mt-4 pt-2 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono-tag">
+                <span class="text-zinc-400">Tanggungan Waktu:</span>
+                <span class="font-bold {{ ($totalMenitTerlambat ?? 0) > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                    {{ ($totalMenitTerlambat ?? 0) > 0 ? ($totalMenitTerlambat . ' Menit') : '0 Menit (Nihil)' }}
+                </span>
             </div>
         </div>
     </div>

@@ -152,7 +152,7 @@
                             </svg>
                         </div>
                         <p class="text-xs font-bold text-emerald-950">TERCATAT MASUK</p>
-                        <p class="text-xs text-emerald-800 mt-1">Pukul <b>{{ $presensiHariIni->jam_masuk }}</b> WIB</p>
+                        <p class="text-xs text-emerald-800 mt-1">Pukul <b>{{ substr($presensiHariIni->jam_masuk, 0, 5) }}</b> WIB</p>
                     </div>
                 @else
                     @if(today()->isWeekend())
@@ -203,7 +203,7 @@
                             &check;
                         </div>
                         <p class="text-xs font-bold text-zinc-100">TERCATAT KELUAR</p>
-                        <p class="text-xs text-zinc-300 mt-1">Pukul <b>{{ $presensiHariIni->jam_pulang }}</b> WIB</p>
+                        <p class="text-xs text-zinc-300 mt-1">Pukul <b>{{ substr($presensiHariIni->jam_pulang, 0, 5) }}</b> WIB</p>
                         @if($durasiHariIni)
                             <p class="text-[11px] text-zinc-400 mt-1 pt-1 border-t border-zinc-800">Durasi: {{ $durasiHariIni }}</p>
                         @endif
@@ -289,6 +289,56 @@
             </form>
         </div>
 
+        {{-- Placard Akumulasi Keterlambatan Magang (Tanggungan Waktu yang Harus Diselesaikan) --}}
+        <div class="p-6 bg-zinc-50/80 border-b border-zinc-100 font-mono-tag">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 {{ ($totalMenitTerlambat ?? 0) > 0 ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-emerald-100 text-emerald-700 border border-emerald-200' }}">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-bold text-zinc-950 uppercase tracking-wider">// REKAPITULASI KETERLAMBATAN</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full {{ ($totalMenitTerlambat ?? 0) > 0 ? 'bg-rose-50 text-rose-700 border border-rose-200 font-semibold' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold' }}">
+                                {{ ($totalMenitTerlambat ?? 0) > 0 ? 'ADA TANGGUNGAN WAKTU' : 'TERTIB / NIHIL' }}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-zinc-500 mt-1 leading-relaxed">
+                            Batas masuk: <b class="text-zinc-800">07:30 WIB</b>. Seluruh menit keterlambatan direkap sejak hari pertama magang dan wajib diselesaikan.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-6 md:border-l md:border-zinc-200 md:pl-6">
+                    <div>
+                        <span class="text-[10px] text-zinc-400 uppercase tracking-widest block">TOTAL KETERLAMBATAN</span>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-xl font-extrabold {{ ($totalMenitTerlambat ?? 0) > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                                {{ $totalMenitTerlambat ?? 0 }}
+                            </span>
+                            <span class="text-xs font-semibold text-zinc-600">Menit</span>
+                        </div>
+                        @if(($totalMenitTerlambat ?? 0) >= 60)
+                            <span class="text-[10px] text-zinc-400 block mt-0.5">
+                                ({{ intdiv($totalMenitTerlambat, 60) }} jam {{ $totalMenitTerlambat % 60 }} menit)
+                            </span>
+                        @endif
+                    </div>
+                    <div class="border-l border-zinc-200 pl-4">
+                        <span class="text-[10px] text-zinc-400 uppercase tracking-widest block">HARI TERLAMBAT</span>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-xl font-extrabold text-zinc-900">
+                                {{ $totalHariTerlambat ?? 0 }}
+                            </span>
+                            <span class="text-xs font-semibold text-zinc-600">Hari</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs font-mono-tag">
                 <thead>
@@ -315,14 +365,19 @@
                             </td>
                             <td class="py-4 px-4 text-zinc-700">
                                 @if($row->jam_masuk)
-                                    <span class="font-medium text-zinc-900">{{ $row->jam_masuk }}</span>
+                                    <span class="font-medium text-zinc-900">{{ substr($row->jam_masuk, 0, 5) }}</span>
+                                    @if($row->menit_terlambat > 0)
+                                        <span class="block text-[10px] font-semibold text-rose-600 mt-0.5">
+                                            +{{ $row->menit_terlambat }} mnt terlambat
+                                        </span>
+                                    @endif
                                 @else
                                     <span class="text-zinc-300">-</span>
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-zinc-700">
                                 @if($row->jam_pulang)
-                                    <span class="font-medium text-zinc-900">{{ $row->jam_pulang }}</span>
+                                    <span class="font-medium text-zinc-900">{{ substr($row->jam_pulang, 0, 5) }}</span>
                                 @else
                                     <span class="text-zinc-300">-</span>
                                 @endif
@@ -338,8 +393,10 @@
                                     </span>
                                 @else
                                     <div class="inline-flex items-center gap-1.5">
-                                        @if($row->status == 'terlambat')
-                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">TERLAMBAT</span>
+                                        @if($row->status == 'terlambat' || $row->menit_terlambat > 0)
+                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                                TERLAMBAT ({{ $row->menit_terlambat }} MNT)
+                                            </span>
                                         @elseif($row->status == 'izin')
                                             <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">IZIN</span>
                                         @else

@@ -287,8 +287,8 @@
                             <div class="space-y-1">
                                 <p class="font-bold text-xs text-zinc-900">// KETENTUAN DURASI MAGANG:</p>
                                 <p class="text-[11px] text-zinc-600 leading-relaxed" id="durasiInfoDesc">
-                                    • Konversi SKS (Ya): Minimal <b>3 bulan</b> kalender.<br>
-                                    • Non-Konversi (Tidak): Minimal <b>2,5 bulan</b> (2 bulan 15 hari).
+                                    • Berlaku untuk <b>semua status konversi</b> (konversi maupun non-konversi).<br>
+                                    • Minimal <b>65 hari kerja efektif</b> (≈ 3 bulan), tidak termasuk Sabtu, Minggu, dan hari libur nasional.
                                 </p>
                                 <p id="durasiKalkulasi" class="text-[11px] font-semibold text-emerald-700 mt-1 hidden"></p>
                             </div>
@@ -475,22 +475,72 @@
             form.addEventListener('change', perbaruiProgres);
             perbaruiProgres();
 
-            /* Batas Tanggal & Validasi Durasi (Minimal 3 Bulan jika Konversi Ya, 2.5 Bulan jika Tidak) */
+            /* Batas Tanggal & Validasi Durasi (Minimal 65 hari kerja efektif ≈ 3 bulan, berlaku semua status konversi) */
             const tanggalMulai   = document.getElementById('tanggalMulai');
             const tanggalSelesai = document.getElementById('tanggalSelesai');
             const durasiKalkulasi = document.getElementById('durasiKalkulasi');
             const hariIniISO     = new Date().toISOString().split('T')[0];
 
-            function getMinSelesaiDate(startDateStr, isKonversi) {
-                if (!startDateStr) return null;
-                const d = new Date(startDateStr);
-                if (isKonversi) {
-                    d.setMonth(d.getMonth() + 3);
-                } else {
-                    d.setMonth(d.getMonth() + 2);
-                    d.setDate(d.getDate() + 15);
+            /* Daftar hari libur nasional (sinkron dengan WorkdayService.php di backend) */
+            const LIBUR_NASIONAL = new Set([
+                // 2025
+                '2025-01-01','2025-01-27','2025-01-28','2025-01-29',
+                '2025-03-29','2025-03-30','2025-03-31','2025-04-01','2025-04-02',
+                '2025-04-18','2025-04-19','2025-04-20',
+                '2025-05-01','2025-05-12','2025-05-29',
+                '2025-06-01','2025-06-06','2025-06-27',
+                '2025-08-17','2025-09-05',
+                '2025-12-25','2025-12-26',
+                // 2026
+                '2026-01-01','2026-01-16','2026-01-17','2026-02-17',
+                '2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23',
+                '2026-04-02','2026-04-05',
+                '2026-05-01','2026-05-02','2026-05-03','2026-05-14','2026-05-27',
+                '2026-06-01','2026-06-17',
+                '2026-08-17','2026-08-26',
+                '2026-12-25','2026-12-26','2026-12-31',
+                // 2027
+                '2027-01-01','2027-01-05','2027-02-06',
+                '2027-03-09','2027-03-10','2027-03-11','2027-03-26',
+                '2027-04-25','2027-05-01','2027-05-03','2027-05-17',
+                '2027-06-01','2027-06-07',
+                '2027-08-16','2027-08-17',
+                '2027-12-25',
+            ]);
+
+            const MIN_HARI_KERJA = 65;
+
+            /** Cek apakah Date adalah hari kerja (bukan Sabtu/Minggu/libur) */
+            function isHariKerja(d) {
+                const dow = d.getDay(); // 0=Minggu, 6=Sabtu
+                if (dow === 0 || dow === 6) return false;
+                const iso = d.toISOString().split('T')[0];
+                return !LIBUR_NASIONAL.has(iso);
+            }
+
+            /** Hitung hari kerja antara startDateStr dan endDateStr (inklusif) */
+            function hitungHariKerja(startDateStr, endDateStr) {
+                if (!startDateStr || !endDateStr) return 0;
+                const start = new Date(startDateStr + 'T00:00:00');
+                const end   = new Date(endDateStr   + 'T00:00:00');
+                let count = 0, cur = new Date(start);
+                while (cur <= end) {
+                    if (isHariKerja(cur)) count++;
+                    cur.setDate(cur.getDate() + 1);
                 }
-                return d;
+                return count;
+            }
+
+            /** Hitung tanggal selesai minimal dari startDateStr dengan target MIN_HARI_KERJA */
+            function getMinSelesaiDate(startDateStr) {
+                if (!startDateStr) return null;
+                const cur   = new Date(startDateStr + 'T00:00:00');
+                let count   = 0;
+                while (count < MIN_HARI_KERJA) {
+                    if (isHariKerja(cur)) count++;
+                    if (count < MIN_HARI_KERJA) cur.setDate(cur.getDate() + 1);
+                }
+                return cur;
             }
 
             function formatTanggalID(d) {
@@ -500,22 +550,24 @@
             function perbaruiBatasTanggalSelesai() {
                 if (!tanggalMulai || !tanggalSelesai) return;
 
-                const radKonversi = form.querySelector('input[name="status_konversi"]:checked');
-                const isKonversi = radKonversi ? radKonversi.value === '1' : true;
-
                 if (tanggalMulai.value) {
-                    const minDateObj = getMinSelesaiDate(tanggalMulai.value, isKonversi);
+                    const minDateObj = getMinSelesaiDate(tanggalMulai.value);
                     const minISO = minDateObj.toISOString().split('T')[0];
                     tanggalSelesai.min = minISO;
 
-                    const minTeks = isKonversi ? '3 bulan' : '2,5 bulan';
                     if (durasiKalkulasi) {
                         durasiKalkulasi.classList.remove('hidden');
-                        durasiKalkulasi.innerHTML = `Durasi minimal: <b>${minTeks}</b>. Selesai paling awal: <b>${formatTanggalID(minDateObj)}</b>.`;
+                        const hariKerjaSkrg = tanggalSelesai.value
+                            ? hitungHariKerja(tanggalMulai.value, tanggalSelesai.value)
+                            : 0;
+                        const cukup = hariKerjaSkrg >= MIN_HARI_KERJA;
+                        durasiKalkulasi.className = `text-[11px] font-semibold mt-1 ${cukup ? 'text-emerald-700' : 'text-rose-600'}`;
+                        durasiKalkulasi.innerHTML = `Selesai paling awal: <b>${formatTanggalID(minDateObj)}</b> (min. <b>${MIN_HARI_KERJA} hari kerja efektif</b>).`
+                            + (tanggalSelesai.value ? ` Saat ini: <b>${hariKerjaSkrg} hari kerja</b>.` : '');
                     }
 
                     if (tanggalSelesai.value && tanggalSelesai.value < minISO) {
-                        tanggalSelesai.setCustomValidity(`Untuk status konversi ${isKonversi ? 'Ya' : 'Tidak'}, durasi magang minimal ${minTeks} (paling awal ${formatTanggalID(minDateObj)}).`);
+                        tanggalSelesai.setCustomValidity(`Periode magang minimal ${MIN_HARI_KERJA} hari kerja efektif (tidak termasuk Sabtu, Minggu & hari libur). Paling awal: ${formatTanggalID(minDateObj)}.`);
                     } else {
                         tanggalSelesai.setCustomValidity('');
                     }

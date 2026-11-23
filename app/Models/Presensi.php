@@ -27,6 +27,10 @@ class Presensi extends Model
         'status_verifikasi'
     ];
 
+    protected $appends = [
+        'menit_terlambat',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -44,5 +48,54 @@ class Presensi extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Hitung berapa menit mahasiswa terlambat dengan batas toleransi 07:30:30.
+     * Jika tepat waktu (<= 07:30:30) atau belum masuk -> 0 menit.
+     * Jika masuk > 07:30:30, dihitung selisih menit keterlambatan dari jam masuk standar (07:30:00).
+     * Contoh: presensi masuk pukul 07:30:30 -> 0 menit (tepat waktu).
+     *         presensi masuk pukul 07:32:00 -> 2 menit.
+     */
+    public function getMenitTerlambatAttribute(): int
+    {
+        if (!$this->jam_masuk) {
+            return 0;
+        }
+
+        try {
+            $masuk = \Carbon\Carbon::parse($this->jam_masuk);
+            $batasToleransi = \Carbon\Carbon::parse('07:30:30');
+            $titikStandar = \Carbon\Carbon::parse('07:30:00');
+
+            if ($masuk->greaterThan($batasToleransi)) {
+                $menit = (int) $masuk->diffInMinutes($titikStandar, true);
+                return $menit > 0 ? $menit : 1;
+            }
+        } catch (\Throwable $e) {
+            return 0;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Format teks keterlambatan yang mudah dibaca (misal "2 menit", "1 jam 15 menit").
+     */
+    public function getFormattedTerlambatAttribute(): ?string
+    {
+        $menit = $this->menit_terlambat;
+        if ($menit <= 0) {
+            return null;
+        }
+
+        if ($menit < 60) {
+            return "{$menit} menit";
+        }
+
+        $jam = intdiv($menit, 60);
+        $sisaMenit = $menit % 60;
+
+        return $sisaMenit > 0 ? "{$jam} jam {$sisaMenit} menit" : "{$jam} jam";
     }
 }

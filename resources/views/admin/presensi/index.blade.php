@@ -110,10 +110,13 @@
 
         {{-- Banner Info Mahasiswa Terpilih untuk Rekap --}}
         @if($selectedUser = $daftarMahasiswa->firstWhere('id', request('user_id')))
-            <div class="px-5 py-2.5 bg-orange-50/70 border-b border-orange-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-                <div class="flex items-center gap-2">
+            @php
+                $mhsTotalMenit = $selectedUser->totalMenitTerlambat();
+            @endphp
+            <div class="px-5 py-3 bg-orange-50/70 border-b border-orange-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div class="flex flex-wrap items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-[#EA580C] animate-pulse"></span>
-                    <span class="text-gray-600">Rekap presensi mahasiswa:</span>
+                    <span class="text-gray-600">Rekap Presensi Mahasiswa:</span>
                     <span class="font-bold text-gray-900">{{ $selectedUser->name }}</span>
                     @if($selectedUser->mahasiswaProfile?->universitas)
                         <span class="text-gray-500 font-medium">• {{ $selectedUser->mahasiswaProfile->universitas }}</span>
@@ -121,9 +124,14 @@
                     @if($selectedUser->mahasiswaProfile?->nim)
                         <span class="text-gray-400 font-mono text-[11px]">(NIM: {{ $selectedUser->mahasiswaProfile->nim }})</span>
                     @endif
+
+                    <span class="inline-flex items-center gap-1.5 ml-2 px-2.5 py-1 rounded-lg border font-mono text-xs {{ $mhsTotalMenit > 0 ? 'bg-rose-50 text-rose-700 border-rose-200 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200 font-medium' }}">
+                        <span>Tanggungan Keterlambatan:</span>
+                        <span class="underline">{{ $selectedUser->formattedTotalTerlambat() }}</span>
+                    </span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-[11px] text-gray-500 font-medium">Total: {{ $presensis->total() }} catatan presensi</span>
+                    <span class="text-[11px] text-gray-500 font-medium">Total: {{ $presensis->total() }} catatan</span>
                     <a href="{{ route('admin.presensi.index', request()->except(['user_id', 'page'])) }}" 
                        class="inline-flex items-center gap-1 font-semibold text-[#EA580C] hover:text-orange-800">
                         <span>Tampilkan Semua</span>
@@ -167,7 +175,12 @@
                                 {{ \Carbon\Carbon::parse($presensi->tanggal)->translatedFormat('d M Y') }}
                             </td>
                             <td class="py-4 px-3 font-mono text-xs text-gray-800">
-                                {{ $presensi->jam_masuk ? substr($presensi->jam_masuk, 0, 5) : '-' }}
+                                <div>{{ $presensi->jam_masuk ? substr($presensi->jam_masuk, 0, 5) : '-' }}</div>
+                                @if($presensi->menit_terlambat > 0)
+                                    <div class="text-[10px] font-semibold text-rose-600 mt-0.5">
+                                        +{{ $presensi->menit_terlambat }} mnt
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-4 px-3 font-mono text-xs text-gray-800">
                                 {{ $presensi->jam_pulang ? substr($presensi->jam_pulang, 0, 5) : '-' }}
@@ -181,8 +194,11 @@
                                 {{ $presensi->jarak_masuk_m ? round($presensi->jarak_masuk_m) . ' m' : '-' }}
                             </td>
                             <td class="py-4 pl-3 pr-6">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ $statusBadge }}">
-                                    {{ ucfirst($status) }}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border {{ $statusBadge }}">
+                                    <span>{{ ucfirst($status) }}</span>
+                                    @if($presensi->menit_terlambat > 0)
+                                        <span class="font-bold text-[11px]">({{ $presensi->menit_terlambat }}m)</span>
+                                    @endif
                                 </span>
                             </td>
                         </tr>

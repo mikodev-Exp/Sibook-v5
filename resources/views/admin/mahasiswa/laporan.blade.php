@@ -145,7 +145,7 @@
     {{-- STATISTIK KEHADIRAN (HADIR, IZIN, ALPHA SESUAI DIAGRAM) --}}
     <div>
         <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Statistik Kehadiran</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
             
             {{-- Hadir --}}
             <div class="bg-white rounded-2xl border border-emerald-100 p-4 shadow-sm relative overflow-hidden">
@@ -156,9 +156,18 @@
 
             {{-- Terlambat --}}
             <div class="bg-white rounded-2xl border border-amber-100 p-4 shadow-sm relative overflow-hidden">
-                <div class="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Terlambat</div>
+                <div class="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Hari Terlambat</div>
                 <div class="text-2xl lg:text-3xl font-extrabold text-amber-700 mt-1.5">{{ $stats['terlambat'] }}</div>
-                <div class="text-[11px] text-gray-400 mt-1">Hari kerja</div>
+                <div class="text-[11px] text-gray-400 mt-1">Hari presensi</div>
+            </div>
+
+            {{-- Akumulasi Menit Terlambat (Tanggungan) --}}
+            <div class="bg-white rounded-2xl border border-rose-100 p-4 shadow-sm relative overflow-hidden">
+                <div class="text-[11px] font-bold text-rose-600 uppercase tracking-wider">Tanggungan Terlambat</div>
+                <div class="text-2xl lg:text-3xl font-extrabold text-rose-700 mt-1.5">
+                    {{ $stats['total_menit_terlambat'] ?? 0 }} <span class="text-xs font-semibold text-rose-500">Mnt</span>
+                </div>
+                <div class="text-[11px] text-gray-400 mt-1">Batas masuk 07:30</div>
             </div>
 
             {{-- Izin / Sakit --}}
@@ -235,7 +244,12 @@
                                 {{ \Carbon\Carbon::parse($p->tanggal)->translatedFormat('d F Y') }}
                             </td>
                             <td class="py-3.5 px-3 font-mono text-xs">
-                                {{ $p->jam_masuk ? substr($p->jam_masuk, 0, 5) : '-' }}
+                                <div>{{ $p->jam_masuk ? substr($p->jam_masuk, 0, 5) : '-' }}</div>
+                                @if($p->menit_terlambat > 0)
+                                    <span class="block text-[10px] font-semibold text-rose-600 mt-0.5">
+                                        +{{ $p->menit_terlambat }} mnt
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-3.5 px-3 font-mono text-xs">
                                 {{ $p->jam_pulang ? substr($p->jam_pulang, 0, 5) : '-' }}
@@ -247,8 +261,11 @@
                                 {{ $p->jarak_masuk_m ? round($p->jarak_masuk_m) . ' m' : '-' }}
                             </td>
                             <td class="py-3.5 pl-3 pr-6 text-right">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $badge }}">
-                                    {{ ucfirst($status) }}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $badge }}">
+                                    <span>{{ ucfirst($status) }}</span>
+                                    @if($p->menit_terlambat > 0)
+                                        <span class="font-bold text-[11px]">({{ $p->menit_terlambat }}m)</span>
+                                    @endif
                                 </span>
                             </td>
                         </tr>

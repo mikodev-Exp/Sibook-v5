@@ -21,6 +21,7 @@ class DashboardController extends Controller
         $totalPresensi = $user->presensis()->count();
         $totalLogbook = $user->logbooks()->count();
         $totalIzin = $user->perizinans()->where('status', 'approved')->count();
+        $totalMenitTerlambat = $user->totalMenitTerlambat();
         
         // Rata-rata jam masuk dihitung secara aman di PHP (kompatibel MySQL & SQLite)
         $jamMasuks = $user->presensis()->whereNotNull('jam_masuk')->pluck('jam_masuk');
@@ -41,7 +42,8 @@ class DashboardController extends Controller
 
         return view('mahasiswa.dashboard', compact(
             'user', 'magang', 'presensiHariIni', 'logbookHariIni', 
-            'totalPresensi', 'totalLogbook', 'totalIzin', 'rataRataFormat', 'logbookTerbaru'
+            'totalPresensi', 'totalLogbook', 'totalIzin', 'rataRataFormat', 'logbookTerbaru',
+            'totalMenitTerlambat'
         ));
     }
 }

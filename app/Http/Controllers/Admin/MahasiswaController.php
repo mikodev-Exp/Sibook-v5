@@ -78,6 +78,10 @@ class MahasiswaController extends Controller
         $logbookSubmitted = $user->logbooks()->where('status', 'submitted')->when($bulan, fn($q) => $q->where('tanggal', 'like', "{$bulan}%"))->count();
         $logbookDraft = $user->logbooks()->where('status', 'draft')->when($bulan, fn($q) => $q->where('tanggal', 'like', "{$bulan}%"))->count();
 
+        // Rekapitulasi Menit Keterlambatan (Akumulasi Tanggungan Waktu)
+        $totalMenitTerlambat = $user->totalMenitTerlambat();
+        $menitTerlambatBulan = $bulan ? $user->totalMenitTerlambat($bulan) : $totalMenitTerlambat;
+
         $stats = [
             'hadir' => $totalHadir,
             'terlambat' => $totalTerlambat,
@@ -90,6 +94,9 @@ class MahasiswaController extends Controller
             'logbook_approved' => $logbookApproved,
             'logbook_submitted' => $logbookSubmitted,
             'logbook_draft' => $logbookDraft,
+            'total_menit_terlambat' => $totalMenitTerlambat,
+            'menit_terlambat_bulan' => $menitTerlambatBulan,
+            'formatted_total_terlambat' => $user->formattedTotalTerlambat(),
         ];
 
         return view('admin.mahasiswa.laporan', compact(
