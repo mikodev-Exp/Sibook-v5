@@ -163,6 +163,10 @@ class PersyaratanMagangController extends Controller
         KelompokKuota $group,
         PersyaratanMagangService $service
     ): RedirectResponse {
+        if ($group->is_catch_all) {
+            return back()->with('error', 'Kelompok penampung umum (Lainnya) tidak dapat dihapus karena digunakan untuk menampung mahasiswa dari seluruh jurusan lainnya.');
+        }
+
         $nama = $group->nama;
         $group->delete();
 

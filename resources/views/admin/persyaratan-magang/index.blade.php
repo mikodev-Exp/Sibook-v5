@@ -6,106 +6,109 @@
 <div x-data="requirementAdmin()" x-init="init()" class="space-y-6 pb-16">
 
     {{-- ── 1. Page Header (dengan Logo BPS) ──────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white rounded-3xl border border-zinc-200/80 p-7 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-gray-50 border border-gray-100 rounded-2xl p-2 flex items-center justify-center shrink-0 shadow-sm">
-                <x-bps-logo class="h-10 w-auto object-contain" />
+            <div class="w-14 h-14 bg-zinc-50 border border-zinc-200/80 rounded-2xl p-2.5 flex items-center justify-center shrink-0 shadow-xs">
+                <x-logo-bps class="h-9 w-auto object-contain" />
             </div>
             <div>
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Requirement & Kuota Magang</h1>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-widest block">// CURATORIAL CONTROL DESK</span>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap mt-0.5">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">Requirement &amp; Kuota Magang</h1>
                     @if($setting->status === 'open')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono-tag font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Dibuka
+                            STATUS: DIBUKA
                         </span>
                     @elseif($setting->status === 'soon')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono-tag font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            Segera Dibuka
+                            STATUS: SEGERA DIBUKA
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono-tag font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                            Ditutup
+                            STATUS: DITUTUP
                         </span>
                     @endif
                 </div>
-                <p class="text-xs text-gray-500 mt-1">
-                    Kelola syarat pendaftaran, tautan internal SPS, dan alokasi kuota per jurusan untuk ditampilkan di landing page.
-                    <span class="text-gray-400">· Diperbarui {{ $lastUpdated->diffForHumans() }}</span>
+                <p class="text-xs text-zinc-500 mt-1.5">
+                    Kelola kriteria kurasi, formulir evaluasi, dan kuota penerimaan per jurusan yang sinkron dengan basis data landing page publik.
+                    <span class="text-zinc-400 font-mono-tag">· Diperbarui {{ $lastUpdated->diffForHumans() }}</span>
                 </p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 self-start md:self-center flex-wrap">
+        <div class="flex items-center gap-3 self-start md:self-center flex-wrap">
             <a href="{{ route('admin.dashboard') }}"
-               class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition">
-                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Kembali
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 text-xs font-mono-tag font-semibold rounded-xl transition shadow-xs">
+                <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <span>KEMBALI</span>
             </a>
             <a href="{{ route('home') }}#kuota-magang" target="_blank"
-               class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition">
-                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                Lihat di Landing Page
+               class="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-mono-tag font-semibold rounded-xl transition shadow-sm hover:shadow group">
+                <span>LIHAT DI LANDING PAGE</span>
+                <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
             </a>
         </div>
     </div>
 
-    {{-- ── 2. Ringkasan Kuota Global & Status ──────────────────────── --}}
+    {{-- ── 2. Ringkasan Kuota Global & Status (Museum Placards) ──────────────────────── --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {{-- Card Total Kuota --}}
-        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <p class="text-xs font-medium text-gray-500">Total Kuota Disediakan</p>
-            <div class="flex items-baseline justify-between mt-2">
-                <p class="text-3xl font-extrabold text-gray-900">{{ $totalQuota }}</p>
-                <span class="text-xs text-gray-400 font-medium">{{ $groups->count() }} kelompok</span>
+        <div class="bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-colors">
+            <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-wider block mb-2">TOTAL KUOTA DISEDIAKAN</span>
+            <div class="flex items-baseline justify-between">
+                <p class="text-3xl font-extrabold text-zinc-950 font-mono-tag">{{ $totalQuota }}</p>
+                <span class="text-xs text-zinc-400 font-mono-tag">{{ $groups->count() }} kelompok</span>
             </div>
-            <div class="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div class="bg-indigo-600 h-full rounded-full" style="width: 100%"></div>
+            <div class="w-full bg-zinc-100 h-1.5 rounded-full mt-4 overflow-hidden">
+                <div class="bg-zinc-950 h-full rounded-full" style="width: 100%"></div>
             </div>
         </div>
 
         {{-- Card Mahasiswa Aktif --}}
-        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <p class="text-xs font-medium text-gray-500">Mahasiswa Magang Aktif</p>
-            <div class="flex items-baseline justify-between mt-2">
-                <p class="text-3xl font-extrabold text-orange-600">{{ $totalActive }}</p>
-                <span class="text-xs text-orange-600 font-semibold">
+        <div class="bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-colors">
+            <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-wider block mb-2">MAHASISWA MAGANG AKTIF</span>
+            <div class="flex items-baseline justify-between">
+                <p class="text-3xl font-extrabold text-zinc-950 font-mono-tag">{{ $totalActive }}</p>
+                <span class="text-xs font-mono-tag font-semibold text-zinc-600">
                     {{ $totalQuota > 0 ? round(($totalActive / $totalQuota) * 100) : 0 }}% terisi
                 </span>
             </div>
-            <div class="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div class="bg-orange-500 h-full rounded-full transition-all duration-300"
+            <div class="w-full bg-zinc-100 h-1.5 rounded-full mt-4 overflow-hidden">
+                <div class="bg-zinc-900 h-full rounded-full transition-all duration-300"
                      style="width: {{ $totalQuota > 0 ? min(100, round(($totalActive / $totalQuota) * 100)) : 0 }}%"></div>
             </div>
         </div>
 
         {{-- Card Sisa Slot --}}
-        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <p class="text-xs font-medium text-gray-500">Sisa Slot Tersedia</p>
-            <div class="flex items-baseline justify-between mt-2">
-                <p class="text-3xl font-extrabold text-emerald-600">{{ $totalRemaining }}</p>
-                <span class="text-xs {{ $totalRemaining > 0 ? 'text-emerald-600' : 'text-rose-600' }} font-semibold">
-                    {{ $totalRemaining > 0 ? 'Tersedia' : 'Penuh' }}
+        <div class="bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-colors">
+            <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-wider block mb-2">SISA SLOT TERSEDIA</span>
+            <div class="flex items-baseline justify-between">
+                <p class="text-3xl font-extrabold text-emerald-600 font-mono-tag">{{ $totalRemaining }}</p>
+                <span class="text-xs font-mono-tag {{ $totalRemaining > 0 ? 'text-emerald-700' : 'text-rose-700' }} font-semibold">
+                    {{ $totalRemaining > 0 ? 'AVAILABLE' : 'FULL' }}
                 </span>
             </div>
-            <div class="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
+            <div class="w-full bg-zinc-100 h-1.5 rounded-full mt-4 overflow-hidden">
                 <div class="bg-emerald-500 h-full rounded-full transition-all duration-300"
                      style="width: {{ $totalQuota > 0 ? min(100, round(($totalRemaining / $totalQuota) * 100)) : 0 }}%"></div>
             </div>
         </div>
 
         {{-- Card Status Registrasi --}}
-        <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div class="bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-colors">
             <div>
-                <p class="text-xs font-medium text-gray-500">Status Pendaftaran</p>
-                <p class="text-lg font-bold text-gray-900 mt-1 capitalize">{{ $setting->status_label }}</p>
-                <p class="text-[11px] text-gray-400 truncate mt-0.5">{{ $setting->status_note ?: 'Tidak ada catatan status.' }}</p>
+                <span class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-wider block mb-1">STATUS ADMISI</span>
+                <p class="text-lg font-extrabold text-zinc-950 capitalize">{{ $setting->status_label }}</p>
+                <p class="text-[11px] text-zinc-500 font-mono-tag truncate mt-1">{{ $setting->status_note ?: 'Tidak ada catatan khusus.' }}</p>
             </div>
-            <button @click="openSettingsModal()" class="mt-3 text-xs font-semibold text-[#E06D28] hover:text-[#c55d1f] inline-flex items-center gap-1">
-                Ubah Status & Syarat
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <button @click="openSettingsModal()" class="mt-4 text-xs font-mono-tag font-semibold text-zinc-950 hover:underline inline-flex items-center gap-1 self-start">
+                <span>UBAH STATUS &amp; SYARAT</span>
+                <span class="text-zinc-400">&rarr;</span>
             </button>
         </div>
     </div>

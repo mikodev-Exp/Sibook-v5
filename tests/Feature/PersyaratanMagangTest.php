@@ -22,12 +22,49 @@ class PersyaratanMagangTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $this->seed(\Database\Seeders\RoleSeeder::class);
 
         $this->adminUser = User::factory()->create([
             'email' => 'admin@test.com',
         ]);
         $this->adminUser->syncRoles(['admin']);
+    }
+
+    /**
+     * Test: Admin dapat mengakses halaman persyaratan magang.
+     */
+    public function test_admin_can_view_persyaratan_magang_page(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        $response = $this->get(route('admin.persyaratan-magang.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Requirement & Kuota Magang');
+    }
+
+    /**
+     * Test: Landing page publik menampilkan visualisasi kuota sesuai data riil mahasiswa di database.
+     */
+    public function test_landing_page_shows_real_database_active_students_and_quota(): void
+    {
+        // Buat kelompok STEM & Lainnya
+        $stem = KelompokKuota::create(['nama' => 'Sains, Teknologi, Teknik & Matematika', 'kuota' => 35, 'aktif' => 0]);
+        $lainnya = KelompokKuota::create(['nama' => 'Lainnya', 'kuota' => 10, 'aktif' => 0, 'is_catch_all' => true]);
+
+        // Buat 2 mahasiswa aktif di database
+        $m1 = User::factory()->create();
+        $m1->syncRoles(['mahasiswa']);
+
+        $m2 = User::factory()->create();
+        $m2->syncRoles(['mahasiswa']);
+
+        $response = $this->get(route('home'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Total Ketersediaan Kuota');
+        $response->assertSee('2 orang');
+        $response->assertSee('43');
     }
 
     /**

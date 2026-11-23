@@ -28,49 +28,48 @@
 <div class="max-w-[1400px] mx-auto space-y-6">
 
     {{-- ================= HERO GREETING & REAL-TIME CLOCK ================= --}}
-    <div x-data="liveClock()" class="anim-fade-up bg-white rounded-3xl border border-gray-150 p-6 lg:p-7 shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative overflow-hidden">
-        {{-- Subtle decorative gradient glow behind --}}
-        <div class="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-br from-orange-100/60 via-amber-50/40 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-gradient-to-tr from-indigo-50/50 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+    <div x-data="liveClock()" class="anim-fade-up bg-white rounded-3xl border border-zinc-200/80 p-7 lg:p-8 shadow-sm relative overflow-hidden">
+        {{-- Subtle ambient glow --}}
+        <div class="absolute -top-16 -right-16 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-6 z-10">
             {{-- Left: Dynamic Greeting --}}
-            <div class="space-y-1.5">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-[11px] font-semibold text-orange-700">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
-                    <span>Sistem SiBook v5 • BPS Kota Surabaya</span>
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200/80 text-[11px] font-mono-tag text-zinc-700">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>CURATOR DESK // SIBOOK [V5.0]</span>
                 </div>
-                <h1 class="text-2xl lg:text-3xl font-extrabold text-[#111827] tracking-tight">
-                    <span x-text="greeting">Selamat Bekerja</span>, {{ auth()->user()->name }}!
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-950 tracking-tight">
+                    <span x-text="greeting">Selamat Bekerja</span>, {{ auth()->user()->name }}
                 </h1>
-                <p class="text-xs lg:text-sm text-gray-500 max-w-xl">
-                    Berikut adalah ringkasan operasional harian, statistik kehadiran, dan verifikasi aktivitas mahasiswa magang terkini.
+                <p class="text-xs sm:text-sm text-zinc-500 max-w-xl leading-relaxed">
+                    Ringkasan operasional kurasi harian, rekapitulasi kehadiran geospasial, dan verifikasi entri logbook mahasiswa magang BPS Kota Surabaya.
                 </p>
             </div>
 
             {{-- Right: Live Digital Clock & Quick Actions --}}
             <div class="flex flex-col sm:flex-row md:flex-col lg:flex-row items-start sm:items-center gap-3">
-                <div class="bg-gray-50/90 border border-gray-150 px-4 py-2.5 rounded-2xl flex items-center gap-3 shadow-inner">
-                    <div class="w-8 h-8 rounded-xl bg-white text-orange-600 flex items-center justify-center shadow-sm">
+                <div class="bg-zinc-50 border border-zinc-200/80 px-4 py-2.5 rounded-2xl flex items-center gap-3 font-mono-tag">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-950 text-white flex items-center justify-center shadow-xs">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     <div>
-                        <div class="font-mono text-base font-bold text-gray-900 tracking-wider" x-text="timeString">--:--:-- WIB</div>
-                        <div class="text-[11px] text-gray-400" x-text="dateString">Memuat tanggal...</div>
+                        <div class="text-sm font-bold text-zinc-900 tracking-wider" x-text="timeString">--:--:-- WIB</div>
+                        <div class="text-[10px] text-zinc-400" x-text="dateString">Memuat tanggal...</div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 font-mono-tag">
                     <a href="{{ route('admin.logbook.index') }}" 
-                       class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#EA580C] hover:bg-orange-700 text-white rounded-xl text-xs font-semibold shadow-sm transition transform hover:-translate-y-0.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <span>Verifikasi Logbook</span>
+                        <span>REVIEW LOGBOOK</span>
                         @if($logbookPending > 0)
-                            <span class="ml-1 px-1.5 py-0.2 bg-white/25 rounded-md text-[10px] font-bold">{{ $logbookPending }}</span>
+                            <span class="ml-1 px-1.5 py-0.2 bg-zinc-800 text-white rounded-md text-[10px] font-bold">{{ $logbookPending }}</span>
                         @endif
                     </a>
                 </div>

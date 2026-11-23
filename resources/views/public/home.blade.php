@@ -4,162 +4,271 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SIBOOK - Sistem Informasi Buku Magang BPS Kota Surabaya</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="font-sans antialiased text-gray-800 bg-gray-50 flex flex-col min-h-screen">
 
-    <!-- Navbar -->
-    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <!-- Logo Placeholder -->
-                <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                    S
+    <!-- Typography: Figtree & Space Mono untuk estetika galeri seni & kuratorial -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600,700,800|space-mono:400,700&display=swap" rel="stylesheet" />
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] { display: none !important; }
+        body {
+            font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .font-mono-tag {
+            font-family: 'Space Mono', ui-monospace, monospace;
+        }
+        .gallery-gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+        }
+        .gallery-gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#09090B] flex flex-col min-h-screen antialiased selection:bg-zinc-900 selection:text-white">
+
+    <!-- Top Navigation (Gallery Header) -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-zinc-200/80 sticky top-0 z-50 transition-all">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 flex justify-between items-center">
+            {{-- Brand Logo & Curator Desk --}}
+            <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform">
+                    SB
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">SIBOOK-V5</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">BPS Kota Surabaya</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg font-extrabold tracking-tight text-zinc-950">SIBOOK</span>
+                        <span class="text-[10px] font-mono-tag px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200/80 font-bold">V5.0</span>
+                    </div>
+                    <p class="text-[10px] font-mono-tag text-zinc-400 uppercase tracking-widest leading-none">BPS Kota Surabaya</p>
                 </div>
+            </a>
+
+            {{-- Nav Links --}}
+            <div class="hidden md:flex items-center gap-8 text-xs font-medium text-zinc-500">
+                <a href="#kuota-magang" class="hover:text-zinc-950 transition-colors">Koleksi Kuota</a>
+                <a href="#alur" class="hover:text-zinc-950 transition-colors">Alur Kurasi</a>
+                <a href="#fitur" class="hover:text-zinc-950 transition-colors">Fitur Studio</a>
             </div>
-            <nav class="flex items-center gap-4">
+
+            {{-- Auth Call-to-Action --}}
+            <nav class="flex items-center gap-3">
                 @auth
-                    <a href="{{ route('dashboard') }}" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm">
-                        Ke Dashboard
+                    <a href="{{ route('dashboard') }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-950 text-white hover:bg-zinc-800 transition-colors text-xs font-medium shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>Masuk Dashboard</span>
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-indigo-600 font-medium text-sm transition-colors">
+                    <a href="{{ route('login') }}" 
+                       class="px-4 py-2 text-zinc-600 hover:text-zinc-950 font-medium text-xs transition-colors">
                         Login
                     </a>
-                    <a href="{{ route('register') }}" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm">
-                        Registrasi
+                    <a href="{{ route('pendaftar.register') }}" 
+                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-950 text-white hover:bg-zinc-800 transition-all text-xs font-medium shadow-sm hover:shadow">
+                        <span>Ajukan Magang</span>
+                        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
                 @endauth
             </nav>
         </div>
     </header>
 
-    <!-- Hero Section -->
     <main class="flex-1">
-        <section class="relative bg-white overflow-hidden">
-            <!-- Background Decoration -->
-            <div class="absolute inset-y-0 right-0 w-1/2 bg-indigo-50 rounded-l-full transform translate-x-1/3 -translate-y-1/4 opacity-50"></div>
+        <!-- Hero Section (Manifesto & Exhibition Intro) -->
+        <section class="relative bg-white border-b border-zinc-200/80 overflow-hidden py-20 lg:py-28">
+            {{-- Subtle Background Canvas Texture --}}
+            <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
             
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 relative z-10">
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <div class="max-w-2xl">
-                        <span class="inline-block py-1 px-3 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold tracking-wide mb-4">
-                            Program Magang Terpadu
-                        </span>
-                        <h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-6">
-                            Mulai Perjalanan Magang Anda di <span class="text-indigo-600">BPS Kota Surabaya</span>
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 relative z-10">
+                <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                    
+                    {{-- Text Column --}}
+                    <div class="lg:col-span-7">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200/80 text-zinc-700 text-xs font-mono-tag mb-6">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>OFFICIAL CURATED INTERNSHIP PROGRAM</span>
+                        </div>
+
+                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-zinc-950 tracking-tight leading-[1.08] mb-6">
+                            Pusat Eksplorasi Data & <span class="underline decoration-zinc-300 underline-offset-8">Talenta Statistik</span>
                         </h2>
-                        <p class="text-lg text-gray-600 mb-8 leading-relaxed">
-                            Kelola administrasi, presensi harian, logbook pekerjaan, dan perizinan magang Anda dalam satu platform digital yang terintegrasi.
+
+                        <p class="text-base sm:text-lg text-zinc-500 max-w-xl leading-relaxed mb-8">
+                            Program magang terpadu Badan Pusat Statistik Kota Surabaya. Kelola administrasi berkas, presensi berbasis lokasi, dan logbook karya dalam satu kanvas digital yang presisi dan transparan.
                         </p>
-                        <div class="flex flex-col sm:flex-row gap-4">
+
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             @guest
-                                <a href="{{ route('pendaftar.register') }}" class="px-8 py-3.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-semibold text-center shadow-lg hover:shadow-xl">
-                                    Ajukan Permohonan Sekarang
+                                <a href="{{ route('pendaftar.register') }}" 
+                                   class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-zinc-950 text-white rounded-xl hover:bg-zinc-800 transition-all font-semibold text-xs tracking-wide shadow-md hover:shadow-lg">
+                                    <span>Ajukan Permohonan Sekarang</span>
+                                    <span class="font-mono-tag text-[11px] text-zinc-400">[PASS #MINT]</span>
                                 </a>
                             @endguest
-                            <a href="{{ auth()->check() ? route('dashboard') : route('login') }}" class="px-8 py-3.5 bg-white text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-all font-semibold text-center">
-                                Lihat Status Pendaftaran
+                            <a href="#kuota-magang" 
+                               class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-zinc-100 text-zinc-800 border border-zinc-200/80 rounded-xl hover:bg-zinc-200/80 transition-all font-semibold text-xs text-center">
+                                <svg class="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <span>Eksplorasi Kuota Terbuka</span>
                             </a>
                         </div>
+
+                        {{-- Metadata Metrics Tag --}}
+                        <div class="mt-10 pt-6 border-t border-zinc-100 flex items-center gap-8 text-xs font-mono-tag text-zinc-400">
+                            <div>
+                                <span class="block text-zinc-950 font-bold text-sm">SURABAYA</span>
+                                <span>PROV. JATIM</span>
+                            </div>
+                            <div class="h-6 w-px bg-zinc-200"></div>
+                            <div>
+                                <span class="block text-zinc-950 font-bold text-sm">WFO LURING</span>
+                                <span>JAM KERJA KANTOR</span>
+                            </div>
+                            <div class="h-6 w-px bg-zinc-200"></div>
+                            <div>
+                                <span class="block text-emerald-600 font-bold text-sm">TRANSPARAN</span>
+                                <span>KUOTA REAL-TIME</span>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <!-- Ilustrasi / Gambar -->
-                    <div class="hidden lg:block relative">
-                        <img src="https://illustrations.popsy.co/indigo/student-going-to-school.svg" alt="Ilustrasi Mahasiswa" class="w-full h-auto drop-shadow-xl">
+
+                    {{-- Visual Exhibition Placard Column --}}
+                    <div class="lg:col-span-5">
+                        <div class="bg-gradient-to-br from-zinc-900 to-zinc-950 text-white rounded-3xl p-7 border border-zinc-800 shadow-2xl relative overflow-hidden group">
+                            {{-- Ambient Glow --}}
+                            <div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
+
+                            <div class="flex items-center justify-between mb-8 pb-4 border-b border-zinc-800">
+                                <div>
+                                    <p class="text-[10px] font-mono-tag uppercase tracking-wider text-zinc-400">EXHIBITION ARCHIVE</p>
+                                    <h3 class="text-sm font-bold text-zinc-100">BPS Internship Edition</h3>
+                                </div>
+                                <div class="bg-white rounded-xl p-1.5 shadow-sm">
+                                    <x-logo-bps class="h-6 w-auto object-contain" />
+                                </div>
+                            </div>
+
+                            <div class="space-y-4 font-mono-tag">
+                                <div class="p-3.5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between">
+                                    <span class="text-xs text-zinc-400">STATUS ALOKASI</span>
+                                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                        LIVE ON-CHAIN
+                                    </span>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between">
+                                    <span class="text-xs text-zinc-400">TOTAL KAPASITAS</span>
+                                    <span class="text-xs font-bold text-zinc-200">{{ $requirementData['total_quota'] ?? 45 }} SLOT TERSEDIA</span>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between">
+                                    <span class="text-xs text-zinc-400">MAHASISWA AKTIF</span>
+                                    <span class="text-xs font-bold text-indigo-300">{{ $requirementData['total_active'] ?? 0 }} MAHASISWA</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 pt-4 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500 font-mono-tag">
+                                <span>VERIFICATION: BPS-3578</span>
+                                <span class="text-zinc-400">EDITION {{ date('Y') }}</span>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </section>
 
-        <!-- Requirement & Kuota Magang (Bento Grid) -->
-        <section id="kuota-magang" class="py-20 bg-gray-50 relative overflow-hidden">
-            <!-- Lingkaran pucat dekorasi latar belakang -->
-            <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-100/60 blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-violet-100/60 blur-3xl pointer-events-none"></div>
-
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <!-- Requirement & Kuota Magang (Curated Collections Grid) -->
+        <section id="kuota-magang" class="py-24 bg-[#FAFAFA] relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 relative z-10">
+                
                 {{-- Section Header --}}
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="inline-block py-1 px-3.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold tracking-wide mb-3">
-                        Informasi Kuota & Ketentuan
-                    </span>
-                    <h3 class="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight mb-4">
-                        Persyaratan & <span class="text-indigo-600">Alokasi Kuota</span> Magang
-                    </h3>
-                    <p class="text-gray-600 text-base leading-relaxed">
-                        Pantau ketersediaan slot magang secara transparan dan pelajari persyaratan lengkap sebelum mengajukan permohonan ke BPS Kota Surabaya.
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 pb-6 border-b border-zinc-200">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-mono-tag text-zinc-400 uppercase tracking-widest mb-2">
+                            <span>// COLLECTION OVERVIEW</span>
+                        </div>
+                        <h3 class="text-3xl lg:text-4xl font-extrabold text-zinc-950 tracking-tight">
+                            Persyaratan & <span class="text-zinc-500 font-light">Alokasi Kuota</span> Magang
+                        </h3>
+                    </div>
+                    <p class="text-xs text-zinc-500 font-mono-tag max-w-sm">
+                        Ketersediaan slot diperbarui secara dinamis langsung dari basis data mahasiswa aktif BPS Kota Surabaya.
                     </p>
                 </div>
 
-                {{-- Bento Layout --}}
+                {{-- Bento Layout: Museum Placard Style --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
 
-                    {{-- ── 1. Kartu Utama: Total Slot & Status (Bento Hero Card - 2 Col) ── --}}
-                    <div class="lg:col-span-2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white rounded-3xl p-7 sm:p-9 relative overflow-hidden shadow-xl flex flex-col justify-between hover:shadow-2xl transition-all duration-300 group">
-                        {{-- Lingkaran dekorasi dalam kartu --}}
-                        <div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+                    {{-- ── 1. Kartu Utama: Total Slot & Status (Hero Placard - 2 Col) ── --}}
+                    <div class="lg:col-span-2 bg-zinc-950 text-white rounded-3xl p-8 sm:p-10 relative overflow-hidden shadow-2xl flex flex-col justify-between border border-zinc-800 group">
+                        {{-- Ambient Art Lighting --}}
+                        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
 
                         <div>
-                            {{-- Header Kartu: Status Badge & Chip Logo BPS --}}
+                            {{-- Header Kartu: Status Badge & Logo BPS --}}
                             <div class="flex items-start justify-between gap-4">
-                                {{-- Badge Status --}}
                                 <div>
                                     @if(($requirementData['status'] ?? 'soon') === 'open')
-                                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold shadow-xs">
-                                            <span class="relative flex h-2 w-2">
-                                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-                                            </span>
-                                            <span>Pendaftaran Dibuka</span>
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-xs font-mono-tag shadow-xs">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                            <span>STATUS: DI BUKA</span>
                                         </div>
                                     @elseif(($requirementData['status'] ?? 'soon') === 'soon')
-                                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-300/30 text-amber-200 text-xs font-semibold shadow-xs">
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-500/30 text-amber-300 text-xs font-mono-tag shadow-xs">
                                             <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                            <span>Segera Dibuka</span>
+                                            <span>STATUS: SEGERA DIBUKA</span>
                                         </div>
                                     @else
-                                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-400/20 backdrop-blur-md border border-rose-300/30 text-rose-200 text-xs font-semibold shadow-xs">
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-300 text-xs font-mono-tag shadow-xs">
                                             <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-                                            <span>Pendaftaran Ditutup</span>
+                                            <span>STATUS: DITUTUP</span>
                                         </div>
                                     @endif
 
-                                    <h4 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-4 text-white">
+                                    <h4 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-4 text-zinc-100">
                                         Total Ketersediaan Kuota
                                     </h4>
                                 </div>
 
-                                {{-- Logo BPS di Chip Putih Membulat (Sesuai Panduan) --}}
-                                <div class="bg-white rounded-full p-2.5 sm:p-3 shadow-md shrink-0 flex items-center justify-center"
+                                {{-- Logo BPS Placard Frame --}}
+                                <div class="bg-white rounded-2xl p-2.5 sm:p-3 shadow-md shrink-0 flex items-center justify-center border border-zinc-200"
                                      title="Badan Pusat Statistik Kota Surabaya">
-                                    <x-logo-bps class="h-8 sm:h-10 w-auto object-contain" />
+                                    <x-logo-bps class="h-8 sm:h-9 w-auto object-contain" />
                                 </div>
                             </div>
 
-                            {{-- Highlight Angka Sisa Slot ("19 dari 45 slot") --}}
+                            {{-- Highlight Angka Sisa Slot ("43 dari 45 slot") --}}
                             <div class="mt-8">
-                                <p class="text-xs uppercase tracking-widest text-indigo-200 font-semibold mb-1">
-                                    Sisa Slot Terbuka
+                                <p class="text-xs uppercase tracking-widest text-zinc-400 font-mono-tag mb-1">
+                                    AVAILABLE SLOTS / TOTAL QUOTA
                                 </p>
-                                <div class="flex items-baseline gap-2.5 flex-wrap">
-                                    <span class="text-5xl sm:text-6xl font-extrabold tracking-tight text-white count-up-number"
+                                <div class="flex items-baseline gap-3 flex-wrap">
+                                    <span class="text-6xl sm:text-7xl font-extrabold tracking-tight text-white count-up-number font-mono-tag"
                                           data-target="{{ $requirementData['total_remaining'] ?? 0 }}">
                                         0
                                     </span>
-                                    <span class="text-xl sm:text-2xl text-indigo-200 font-medium">
-                                        dari <span class="font-bold text-white">{{ $requirementData['total_quota'] ?? 0 }}</span> slot tersedia
+                                    <span class="text-xl sm:text-2xl text-zinc-400 font-light">
+                                        dari <strong class="text-white font-mono-tag">{{ $requirementData['total_quota'] ?? 0 }}</strong> slot terbuka
                                     </span>
                                 </div>
 
                                 {{-- Status Note --}}
                                 @if(!empty($requirementData['status_note']))
-                                    <div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15 text-xs text-indigo-100 leading-relaxed">
-                                        <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs text-zinc-300 font-mono-tag leading-relaxed">
+                                        <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         <span>{{ $requirementData['status_note'] }}</span>
                                     </div>
                                 @endif
@@ -167,12 +276,12 @@
                         </div>
 
                         {{-- Progress Bar Total Slot --}}
-                        <div class="mt-8 pt-6 border-t border-white/15">
-                            <div class="flex items-center justify-between text-xs text-indigo-200 font-medium mb-2">
-                                <span>Mahasiswa Magang Aktif: <strong class="text-white">{{ $requirementData['total_active'] ?? 0 }} orang</strong></span>
+                        <div class="mt-8 pt-6 border-t border-zinc-800">
+                            <div class="flex items-center justify-between text-xs font-mono-tag text-zinc-400 mb-2.5">
+                                <span>Mahasiswa Magang Aktif: <strong class="text-white font-bold">{{ $requirementData['total_active'] ?? 0 }} orang</strong></span>
                                 <span>{{ $requirementData['total_percentage'] ?? 0 }}% terisi</span>
                             </div>
-                            <div class="w-full bg-white/20 h-3 rounded-full overflow-hidden p-0.5 backdrop-blur-sm">
+                            <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden p-0.5">
                                 <div class="bg-white h-full rounded-full transition-all duration-1000 ease-out progress-bar-animated"
                                      data-width="{{ $requirementData['total_percentage'] ?? 0 }}%"
                                      style="width: 0%"></div>
@@ -180,45 +289,44 @@
                         </div>
                     </div>
 
-                    {{-- ── 2. Kartu Persyaratan: Checklist (Bento Card - 1 Col) ── --}}
-                    <div class="bg-white rounded-3xl p-7 border border-gray-150 shadow-sm flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                    {{-- ── 2. Kartu Persyaratan: Criteria Placard (1 Col) ── --}}
+                    <div class="bg-white rounded-3xl p-8 border border-zinc-200/80 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-all duration-300">
                         <div>
-                            <div class="flex items-center gap-3 mb-5">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-zinc-100">
+                                <div class="w-9 h-9 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-xs font-bold shrink-0">
+                                    01
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-extrabold text-gray-900 tracking-tight">Persyaratan</h4>
-                                    <p class="text-xs text-gray-400">Kriteria pendaftaran magang</p>
+                                    <h4 class="text-base font-extrabold text-zinc-950 tracking-tight">Kriteria Kurasi</h4>
+                                    <p class="text-[11px] font-mono-tag text-zinc-400 uppercase">Admission Criteria</p>
                                 </div>
                             </div>
 
                             {{-- Checklist Items --}}
-                            <ul class="space-y-3">
+                            <ul class="space-y-3.5">
                                 @forelse($requirementData['requirements'] ?? [] as $req)
-                                    <li class="flex items-start gap-2.5 text-xs text-gray-700 leading-relaxed">
-                                        <div class="w-5 h-5 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                        </div>
+                                    <li class="flex items-start gap-2.5 text-xs text-zinc-700 leading-relaxed">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-950 mt-1.5 shrink-0"></span>
                                         <span>{{ $req }}</span>
                                     </li>
                                 @empty
-                                    <li class="text-xs text-gray-400 italic">Belum ada persyaratan yang ditentukan.</li>
+                                    <li class="text-xs text-zinc-400 italic">Belum ada kriteria yang ditentukan.</li>
                                 @endforelse
                             </ul>
                         </div>
 
                         {{-- Catatan Persyaratan Tambahan --}}
                         @if(!empty($requirementData['requirements_note']))
-                            <div class="mt-6 pt-4 border-t border-gray-100">
-                                <p class="text-[11px] text-gray-500 leading-relaxed italic bg-gray-50 p-3 rounded-xl border border-gray-100">
-                                    💡 {{ $requirementData['requirements_note'] }}
-                                </p>
+                            <div class="mt-6 pt-4 border-t border-zinc-100">
+                                <div class="text-[11px] text-zinc-500 leading-relaxed bg-zinc-50 p-3.5 rounded-2xl border border-zinc-200/60 font-mono-tag">
+                                    <span class="text-zinc-900 font-bold block mb-0.5">// CATATAN KURATOR</span>
+                                    {{ $requirementData['requirements_note'] }}
+                                </div>
                             </div>
                         @endif
                     </div>
 
-                    {{-- ── 3. Kartu Kelompok Jurusan (Bento Cards per Kelompok) ── --}}
+                    {{-- ── 3. Kartu Kelompok Jurusan (Curated Collection Cards) ── --}}
                     @forelse($requirementData['groups'] ?? [] as $group)
                         @php
                             $grp = is_array($group) ? (object) $group : (is_object($group) ? $group : null);
@@ -240,121 +348,105 @@
                             $barClass = match($statusColor) {
                                 'red'    => 'bg-rose-500',
                                 'yellow' => 'bg-amber-500',
-                                default  => 'bg-emerald-500',
+                                default  => 'bg-zinc-950',
                             };
 
                             $majors = is_array($grp->majors ?? null) ? $grp->majors : ($grp->majors ?? []);
                         @endphp
-                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-gray-150 shadow-sm flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                        <div class="bg-white rounded-3xl p-7 border border-zinc-200/80 shadow-sm flex flex-col justify-between hover:border-zinc-400 hover:shadow-lg transition-all duration-300">
                             <div>
-                                {{-- Header Kelompok: Nama & Badge Sisa --}}
+                                {{-- Header Kelompok --}}
                                 <div class="flex items-start justify-between gap-3 mb-4">
                                     <div>
-                                        <span class="text-[10.5px] font-bold uppercase tracking-wider text-indigo-600 block mb-1">
-                                            {{ !empty($grp->is_catch_all) ? 'Kelompok Umum' : 'Kelompok Jurusan' }}
+                                        <span class="text-[10px] font-mono-tag uppercase tracking-widest text-zinc-400 block mb-1">
+                                            {{ !empty($grp->is_catch_all) ? '// GENERAL BATCH' : '// CURATED STREAM' }}
                                         </span>
-                                        <h4 class="text-lg font-extrabold text-gray-900 tracking-tight leading-snug">
+                                        <h4 class="text-lg font-extrabold text-zinc-950 tracking-tight leading-snug">
                                             {{ $grp->name ?? 'Kelompok Jurusan' }}
                                         </h4>
                                     </div>
 
-                                    {{-- Badge Kuota (Warna + Teks Aksesibel) --}}
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold border shrink-0 {{ $badgeClass }}">
+                                    {{-- Badge Kuota --}}
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-mono-tag font-bold border shrink-0 {{ $badgeClass }}">
                                         @if($rem <= 0)
-                                            <span class="inline-flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                                Penuh
-                                            </span>
+                                            PENUH
                                         @elseif($remPct <= 30)
-                                            <span class="inline-flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                                Tersisa {{ $rem }}
-                                            </span>
+                                            TERBATAS ({{ $rem }})
                                         @else
-                                            <span class="inline-flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                                Tersedia ({{ $rem }})
-                                            </span>
+                                            TERSEDIA ({{ $rem }})
                                         @endif
                                     </span>
                                 </div>
 
                                 {{-- Angka Sisa Kuota Besar --}}
                                 <div class="mt-4 flex items-baseline gap-2">
-                                    <span class="text-4xl font-extrabold text-gray-900 count-up-number"
+                                    <span class="text-4xl font-extrabold text-zinc-950 count-up-number font-mono-tag"
                                           data-target="{{ $rem }}">
                                         0
                                     </span>
-                                    <span class="text-xs text-gray-500 font-medium">
-                                        slot tersisa dari <strong class="text-gray-800">{{ $quota }}</strong> total kuota
+                                    <span class="text-xs text-zinc-500 font-medium">
+                                        slot tersisa dari <strong class="text-zinc-900 font-mono-tag">{{ $quota }}</strong> kuota
                                     </span>
                                 </div>
 
-                                {{-- Progress Bar Terisi Halus --}}
-                                <div class="w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden">
+                                {{-- Progress Bar --}}
+                                <div class="w-full bg-zinc-100 h-2 rounded-full mt-3 overflow-hidden">
                                     <div class="h-full rounded-full transition-all duration-1000 ease-out progress-bar-animated {{ $barClass }}"
                                          data-width="{{ $pct }}%"
                                          style="width: 0%"></div>
                                 </div>
 
                                 {{-- Deretan Titik Slot (Slot Dots Visualization) --}}
-                                <div class="flex items-center gap-1 mt-2.5 flex-wrap">
+                                <div class="flex items-center gap-1 mt-3 flex-wrap">
                                     @php
-                                        // Batasi max 20 titik visual agar rapi di layar
                                         $displayDots = min(20, $quota);
                                         $activeDots = $quota > 0 ? round(($active / $quota) * $displayDots) : 0;
                                     @endphp
                                     @for($i = 0; $i < $displayDots; $i++)
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $i < $activeDots ? 'bg-gray-300' : 'bg-indigo-600' }}"
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $i < $activeDots ? 'bg-zinc-300' : 'bg-zinc-950' }}"
                                               title="{{ $i < $activeDots ? 'Terisi' : 'Tersedia' }}"></span>
                                     @endfor
                                     @if($quota > 20)
-                                        <span class="text-[9px] text-gray-400 font-mono">+{{ $quota - 20 }}</span>
+                                        <span class="text-[9px] text-zinc-400 font-mono-tag">+{{ $quota - 20 }}</span>
                                     @endif
                                 </div>
 
                                 {{-- Chip Jurusan yang Tercakup --}}
-                                <div class="mt-5 pt-4 border-t border-gray-100">
-                                    <p class="text-[11px] font-semibold text-gray-400 mb-2">Program Studi / Jurusan Terkait:</p>
+                                <div class="mt-6 pt-4 border-t border-zinc-100">
+                                    <p class="text-[10px] font-mono-tag uppercase tracking-wider text-zinc-400 mb-2.5">Scope Jurusan / Program Studi:</p>
                                     <div class="flex flex-wrap gap-1.5">
                                         @forelse($majors as $major)
                                             @php
                                                 $majorName = is_array($major) ? ($major['name'] ?? '') : ($major->name ?? (string) $major);
                                             @endphp
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-50/80 text-indigo-700 text-xs font-medium border border-indigo-100">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-zinc-50 text-zinc-800 text-[11px] font-mono-tag border border-zinc-200/80">
                                                 {{ $majorName }}
                                             </span>
                                         @empty
-                                            <span class="text-xs text-gray-400 italic">Mencakup seluruh jurusan lainnya.</span>
+                                            <span class="text-xs text-zinc-400 italic">Mencakup seluruh jurusan lainnya.</span>
                                         @endforelse
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Footer Kartu --}}
-                            <div class="mt-5 pt-3 border-t border-gray-100/60 flex items-center justify-between text-[11px] text-gray-400">
-                                <span>Terisi: {{ $active }} mahasiswa</span>
-                                <span>{{ $pct }}% kuota</span>
+                            <div class="mt-6 pt-3.5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono-tag text-zinc-400">
+                                <span>AKTIF: {{ $active }} MAHASISWA</span>
+                                <span>{{ $pct }}% TERISI</span>
                             </div>
                         </div>
                     @empty
-                        <div class="lg:col-span-3 bg-white rounded-3xl p-8 border border-gray-150 text-center shadow-xs">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center mb-3">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                            </div>
-                            <h4 class="text-sm font-bold text-gray-800">Alokasi Kuota Jurusan Sedang Disiapkan</h4>
-                            <p class="text-xs text-gray-500 mt-1 max-w-md mx-auto">
-                                Rincian pembagian kuota per kelompok jurusan saat ini sedang disusun oleh administrator. Informasi akan segera diperbarui.
-                            </p>
+                        <div class="lg:col-span-3 bg-white rounded-3xl p-10 border border-zinc-200 text-center shadow-xs">
+                            <p class="text-sm font-bold text-zinc-800 font-mono-tag">ALOKASI KUOTA JURUSAN SEDANG DISIAPKAN</p>
                         </div>
                     @endforelse
 
                 </div>
 
                 {{-- Timestamp Terakhir Diperbarui --}}
-                <div class="mt-8 text-center text-xs text-gray-400">
-                    Informasi kuota terakhir diperbarui pada:
-                    <span class="font-semibold text-gray-600">
+                <div class="mt-12 text-center text-xs text-zinc-400 font-mono-tag">
+                    LEDGER TIMESTAMP:
+                    <span class="font-semibold text-zinc-700">
                         @php
                             $lu = $requirementData['last_updated'] ?? null;
                             $formattedDate = $lu instanceof \Carbon\Carbon
@@ -367,96 +459,137 @@
             </div>
         </section>
 
-        <!-- Alur Pendaftaran -->
-        <section id="alur" class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <h3 class="text-3xl font-bold text-gray-900 mb-4">Alur Pengajuan Magang</h3>
-                    <p class="text-gray-600">Ikuti langkah-langkah berikut untuk mendaftar sebagai mahasiswa magang di BPS Kota Surabaya.</p>
+        <!-- Alur Pendaftaran (Curatorial Intake Stages) -->
+        <section id="alur" class="py-24 bg-white border-t border-zinc-200/80">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 pb-6 border-b border-zinc-200">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-mono-tag text-zinc-400 uppercase tracking-widest mb-2">
+                            <span>// INTAKE PROTOCOL</span>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-zinc-950 tracking-tight">Alur Pengajuan & Kurasi</h3>
+                    </div>
+                    <p class="text-xs text-zinc-500 font-mono-tag max-w-sm">
+                        Empat tahapan terstruktur dari registrasi hingga penetapan resmi mahasiswa magang aktif.
+                    </p>
                 </div>
 
-                <div class="grid md:grid-cols-4 gap-8">
+                <div class="grid md:grid-cols-4 gap-6">
                     <!-- Step 1 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative hover:-translate-y-1 transition-transform">
-                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl font-bold mb-4">1</div>
-                        <h4 class="font-bold text-gray-900 mb-2">Registrasi Akun</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Buat akun dan verifikasi email Anda melalui tautan yang dikirimkan.</p>
+                    <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                                01
+                            </div>
+                            <h4 class="text-base font-bold text-zinc-950 mb-2">Registrasi Akun</h4>
+                            <p class="text-xs text-zinc-500 leading-relaxed">Buat identitas akun pendaftar dan verifikasi email resmi kampus Anda.</p>
+                        </div>
+                        <div class="mt-6 pt-3 border-t border-zinc-200/60 font-mono-tag text-[10px] text-zinc-400 uppercase">STAGE: IDENTIFIER</div>
                     </div>
                     <!-- Step 2 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative hover:-translate-y-1 transition-transform">
-                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl font-bold mb-4">2</div>
-                        <h4 class="font-bold text-gray-900 mb-2">Upload Dokumen</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Lengkapi berkas seperti surat permohonan kampus, CV, dan transkrip nilai.</p>
+                    <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                                02
+                            </div>
+                            <h4 class="text-base font-bold text-zinc-950 mb-2">Upload Dokumen</h4>
+                            <p class="text-xs text-zinc-500 leading-relaxed">Unggah berkas terkurasi: Surat izin kampus, CV mutakhir, dan transkrip nilai akademik.</p>
+                        </div>
+                        <div class="mt-6 pt-3 border-t border-zinc-200/60 font-mono-tag text-[10px] text-zinc-400 uppercase">STAGE: SUBMISSION</div>
                     </div>
                     <!-- Step 3 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative hover:-translate-y-1 transition-transform">
-                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl font-bold mb-4">3</div>
-                        <h4 class="font-bold text-gray-900 mb-2">Review Admin</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Admin akan memverifikasi kelengkapan dokumen yang Anda unggah.</p>
+                    <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                                03
+                            </div>
+                            <h4 class="text-base font-bold text-zinc-950 mb-2">Kurasi Berkas</h4>
+                            <p class="text-xs text-zinc-500 leading-relaxed">Admin BPS menelaah kesesuaian alokasi jurusan dan kelayakan dokumen pengajuan.</p>
+                        </div>
+                        <div class="mt-6 pt-3 border-t border-zinc-200/60 font-mono-tag text-[10px] text-zinc-400 uppercase">STAGE: CURATION</div>
                     </div>
                     <!-- Step 4 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative hover:-translate-y-1 transition-transform">
-                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl font-bold mb-4">4</div>
-                        <h4 class="font-bold text-gray-900 mb-2">Persetujuan</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Super User memberikan persetujuan akhir dan akun Anda berubah menjadi Mahasiswa Magang.</p>
+                    <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                                04
+                            </div>
+                            <h4 class="text-base font-bold text-zinc-950 mb-2">Whitelist & Masuk</h4>
+                            <p class="text-xs text-zinc-500 leading-relaxed">Persetujuan akhir membuka akses penuh akun sebagai Mahasiswa Magang di Artist Studio.</p>
+                        </div>
+                        <div class="mt-6 pt-3 border-t border-zinc-200/60 font-mono-tag text-[10px] text-zinc-400 uppercase">STAGE: ADMISSION</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Fitur Section -->
-        <section class="py-20 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <h3 class="text-3xl font-bold text-gray-900 mb-4">Fitur Setelah Diterima</h3>
-                    <p class="text-gray-600">Kemudahan administrasi selama masa magang Anda.</p>
+        <!-- Fitur Studio Section -->
+        <section id="fitur" class="py-24 bg-[#FAFAFA] border-t border-zinc-200/80">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 pb-6 border-b border-zinc-200">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-mono-tag text-zinc-400 uppercase tracking-widest mb-2">
+                            <span>// STUDIO TOOLS</span>
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-zinc-950 tracking-tight">Fasilitas Mahasiswa Magang</h3>
+                    </div>
+                    <p class="text-xs text-zinc-500 font-mono-tag max-w-sm">
+                        Instrumen digital mandiri untuk pencatatan kehadiran, karya harian, dan izin operasional.
+                    </p>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8">
                     <!-- Fitur 1 -->
-                    <div class="p-8 bg-gray-50 rounded-2xl border border-gray-100">
-                        <div class="w-14 h-14 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-6 shadow-md">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <div class="p-8 bg-white rounded-3xl border border-zinc-200/80 shadow-sm hover:border-zinc-400 transition-all">
+                        <div class="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-gray-900 mb-3">Presensi Geolocation</h4>
-                        <p class="text-gray-600 leading-relaxed text-sm">Lakukan presensi masuk dan pulang langsung dari ponsel Anda dengan validasi radius kantor (1 km).</p>
+                        <h4 class="text-lg font-bold text-zinc-950 mb-2">Presensi Geolocation</h4>
+                        <p class="text-zinc-500 leading-relaxed text-xs">Pencatatan jam masuk dan pulang terverifikasi titik koordinat GPS kantor BPS Kota Surabaya (radius 1 km).</p>
                     </div>
                     <!-- Fitur 2 -->
-                    <div class="p-8 bg-gray-50 rounded-2xl border border-gray-100">
-                        <div class="w-14 h-14 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-6 shadow-md">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <div class="p-8 bg-white rounded-3xl border border-zinc-200/80 shadow-sm hover:border-zinc-400 transition-all">
+                        <div class="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-gray-900 mb-3">Logbook Harian</h4>
-                        <p class="text-gray-600 leading-relaxed text-sm">Catat kegiatan harian Anda sebelum melakukan presensi pulang. Terhubung langsung dengan Admin.</p>
+                        <h4 class="text-lg font-bold text-zinc-950 mb-2">Logbook Karya Digital</h4>
+                        <p class="text-zinc-500 leading-relaxed text-xs">Arsip catatan aktivitas dan kontribusi tugas harian yang terkoneksi langsung dengan verifikasi pembimbing BPS.</p>
                     </div>
                     <!-- Fitur 3 -->
-                    <div class="p-8 bg-gray-50 rounded-2xl border border-gray-100">
-                        <div class="w-14 h-14 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-6 shadow-md">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <div class="p-8 bg-white rounded-3xl border border-zinc-200/80 shadow-sm hover:border-zinc-400 transition-all">
+                        <div class="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-gray-900 mb-3">Perizinan Online</h4>
-                        <p class="text-gray-600 leading-relaxed text-sm">Ajukan izin tidak masuk dengan mudah. Cukup unggah link Google Drive bukti surat izin Anda.</p>
+                        <h4 class="text-lg font-bold text-zinc-950 mb-2">Absence Pass (Perizinan)</h4>
+                        <p class="text-zinc-500 leading-relaxed text-xs">Pengajuan izin daring yang akuntabel dengan pengunggahan dokumen bukti resmi secara cepat dan tercatat rapi.</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 py-12 border-t border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+    <!-- Footer (Minimalist Exhibition Colophon) -->
+    <footer class="bg-zinc-950 text-zinc-400 py-16 border-t border-zinc-800 font-mono-tag text-xs">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-indigo-500 rounded flex items-center justify-center text-white font-bold text-sm">
-                    S
+                <div class="w-8 h-8 bg-white text-zinc-950 rounded-lg flex items-center justify-center font-bold text-xs">
+                    SB
                 </div>
-                <span class="text-lg font-bold text-white tracking-tight">SIBOOK-V5</span>
+                <div>
+                    <span class="text-white font-bold tracking-tight block">SIBOOK-V5</span>
+                    <span class="text-[10px] text-zinc-500">Badan Pusat Statistik Kota Surabaya</span>
+                </div>
             </div>
-            <p class="text-sm text-center md:text-left text-gray-400">
-                &copy; {{ date('Y') }} Badan Pusat Statistik Kota Surabaya.<br class="md:hidden"> Sistem Informasi Buku Magang.
+
+            <p class="text-zinc-500 text-[11px] leading-relaxed">
+                &copy; {{ date('Y') }} BPS Kota Surabaya. Sistem Informasi Buku Magang.<br>
+                All rights reserved. Digital Provenance Edition.
             </p>
-            <div class="flex gap-4 text-sm">
-                <a href="https://surabayakota.bps.go.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Portal BPS Kota Surabaya</a>
-                <a href="mailto:bps3578@bps.go.id" class="hover:text-white transition-colors">Bantuan & Kontak</a>
+
+            <div class="flex gap-6 text-[11px]">
+                <a href="https://surabayakota.bps.go.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">PORTAL BPS</a>
+                <a href="https://sps.bps.go.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">SPS LAYANAN</a>
+                <a href="mailto:bps3578@bps.go.id" class="hover:text-white transition-colors">KONTAK</a>
             </div>
         </div>
     </footer>
@@ -478,7 +611,7 @@
                             observer.unobserve(bar);
                         }
                     });
-                }, { threshold: 0.15 });
+                }, { threshold: 0.2 });
 
                 progressBars.forEach(bar => progressObserver.observe(bar));
             }
@@ -491,38 +624,40 @@
                         if (entry.isIntersecting) {
                             const el = entry.target;
                             const target = parseInt(el.getAttribute('data-target'), 10) || 0;
-
-                            if (prefersReducedMotion || target <= 0) {
-                                el.textContent = target;
-                            } else {
-                                animateCountUp(el, target, 1200);
-                            }
                             observer.unobserve(el);
+
+                            if (prefersReducedMotion || target === 0) {
+                                el.textContent = target;
+                                return;
+                            }
+
+                            const duration = 1200;
+                            const start = 0;
+                            const startTime = performance.now();
+
+                            function easeOutQuart(x) {
+                                return 1 - Math.pow(1 - x, 4);
+                            }
+
+                            function updateCount(currentTime) {
+                                const elapsed = currentTime - startTime;
+                                const progress = Math.min(elapsed / duration, 1);
+                                const current = Math.floor(easeOutQuart(progress) * (target - start) + start);
+                                el.textContent = current;
+
+                                if (progress < 1) {
+                                    requestAnimationFrame(updateCount);
+                                } else {
+                                    el.textContent = target;
+                                }
+                            }
+
+                            requestAnimationFrame(updateCount);
                         }
                     });
-                }, { threshold: 0.15 });
+                }, { threshold: 0.3 });
 
                 countElements.forEach(el => countObserver.observe(el));
-            }
-
-            function animateCountUp(element, endVal, duration) {
-                let startTimestamp = null;
-                const startVal = 0;
-
-                const step = (timestamp) => {
-                    if (!startTimestamp) startTimestamp = timestamp;
-                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    // Easing cubic out
-                    const easeOutProgress = 1 - Math.pow(1 - progress, 3);
-                    element.textContent = Math.floor(easeOutProgress * (endVal - startVal) + startVal);
-                    if (progress < 1) {
-                        window.requestAnimationFrame(step);
-                    } else {
-                        element.textContent = endVal;
-                    }
-                };
-
-                window.requestAnimationFrame(step);
             }
         });
     </script>

@@ -101,6 +101,10 @@ class PermohonanController extends Controller
                     }
                 }
             }
+
+            // Sinkronkan data kuota magang aktif dan bersihkan cache landing page
+            app(\App\Services\PersyaratanMagangService::class)->syncActiveFromDatabase();
+            app(\App\Services\PersyaratanMagangService::class)->clearCache();
         }
 
         if (request()->ajax() || request()->wantsJson()) {

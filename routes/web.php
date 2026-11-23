@@ -6,6 +6,7 @@ use App\Http\Controllers\Public\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::view('/alur', 'public.alur')->name('alur');
 
 Route::get('/dashboard', DashboardRedirectController::class)
     ->middleware(['auth', 'verified'])

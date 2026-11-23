@@ -33,7 +33,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // INI YANG BIKIN ERROR KEMARIN KARENA FILE INI KOSONG
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'pendaftar', 'guard_name' => 'web']);
         $user->assignRole('pendaftar'); 
 
         event(new Registered($user));

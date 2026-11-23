@@ -34,10 +34,10 @@
 <div class="max-w-5xl mx-auto space-y-5">
 
     {{-- ── Breadcrumbs ───────────────────────────────────── --}}
-    <nav class="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
-        <a href="{{ route('admin.permohonan.index') }}" class="text-orange-500 hover:underline font-semibold">Permohonan Magang</a>
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span>Detail #{{ $permohonan->id }}</span>
+    <nav class="flex items-center gap-2 text-xs font-mono-tag text-zinc-400">
+        <a href="{{ route('admin.permohonan.index') }}" class="text-zinc-700 hover:text-zinc-950 font-semibold">PERMOHONAN MAGANG</a>
+        <span>/</span>
+        <span class="text-zinc-500">DOSSIER #{{ $permohonan->id }}</span>
     </nav>
 
     {{-- Flash Message --}}
@@ -88,15 +88,15 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-2 flex-wrap font-mono-tag">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $badgeClass }}">
                     {{ $st->label() }}
                 </span>
                 <a href="{{ route('admin.permohonan.index') }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200
-                          text-xs font-semibold text-gray-600 transition">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200
+                          text-xs font-semibold text-zinc-700 transition">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    Kembali
+                    KEMBALI
                 </a>
             </div>
         </div>

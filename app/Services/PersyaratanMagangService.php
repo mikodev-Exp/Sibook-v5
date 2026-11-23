@@ -5,9 +5,11 @@ namespace App\Services;
 use App\Models\Jurusan;
 use App\Models\KelompokKuota;
 use App\Models\PengaturanMagang;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Spatie\Permission\Models\Role;
 
 class PersyaratanMagangService
 {
@@ -19,6 +21,9 @@ class PersyaratanMagangService
     public function getLandingData(): array
     {
         return Cache::rememberForever(self::CACHE_KEY, function () {
+            // Sinkronkan data magang aktif real dari database sebelum agregasi
+            $this->syncActiveFromDatabase();
+
             $setting = PengaturanMagang::current();
             $groups = KelompokKuota::with('jurusans')->orderBy('urutan')->orderBy('nama')->get();
             $unassignedMajors = Jurusan::whereNull('kelompok_kuota_id')->orderBy('nama')->get();
@@ -115,6 +120,9 @@ class PersyaratanMagangService
      */
     public function getAdminData(): array
     {
+        // Sinkronkan data magang aktif real dari database sebelum ditampilkan di admin
+        $this->syncActiveFromDatabase();
+
         $setting = PengaturanMagang::current();
         $groups = KelompokKuota::with('jurusans')->orderBy('urutan')->orderBy('nama')->get();
         $unassignedMajors = Jurusan::whereNull('kelompok_kuota_id')->orderBy('nama')->get();
@@ -142,6 +150,85 @@ class PersyaratanMagangService
             'totalRemaining'   => $totalRemaining,
             'lastUpdated'      => $lastUpdated,
         ];
+    }
+
+    /**
+     * Hitung mahasiswa magang aktif dari database (role: mahasiswa)
+     * dan sinkronkan ke masing-masing kelompok kuota di database.
+     */
+    public function syncActiveFromDatabase(): void
+    {
+        // Pastikan tabel roles & role mahasiswa sudah ada
+        if (! class_exists(Role::class) || ! Role::where('name', 'mahasiswa')->exists()) {
+            return;
+        }
+
+        // Pastikan kelompok umum (Lainnya / is_catch_all) selalu ada
+        KelompokKuota::firstOrCreate(
+            ['is_catch_all' => true],
+            [
+                'nama'   => 'Lainnya',
+                'kuota'  => 10,
+                'aktif'  => 0,
+                'urutan' => 99,
+            ]
+        );
+
+        $groups = KelompokKuota::with('jurusans')->get();
+        if ($groups->isEmpty()) {
+            return;
+        }
+
+        // Ambil seluruh mahasiswa yang memiliki role 'mahasiswa' aktif
+        $activeStudents = User::role('mahasiswa')
+            ->with('mahasiswaProfile')
+            ->get();
+
+        $catchAll = $groups->firstWhere('is_catch_all', true);
+
+        // Inisialisasi hitungan per kelompok
+        $counts = [];
+        foreach ($groups as $g) {
+            $counts[$g->id] = 0;
+        }
+
+        foreach ($activeStudents as $student) {
+            $profile = $student->mahasiswaProfile;
+            $prodi = strtolower(trim($profile->program_studi ?? $profile->jurusan ?? ''));
+            $matchedGroupId = null;
+
+            if ($prodi !== '' && $prodi !== '-') {
+                foreach ($groups as $group) {
+                    if ($group->is_catch_all) {
+                        continue;
+                    }
+                    foreach ($group->jurusans as $major) {
+                        $majorName = strtolower(trim($major->nama));
+                        if ($majorName !== '' && ($prodi === $majorName || str_contains($prodi, $majorName) || str_contains($majorName, $prodi))) {
+                            $matchedGroupId = $group->id;
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            // Jika tidak cocok dengan jurusan spesifik mana pun, masukkan ke kelompok 'Lainnya' (is_catch_all)
+            if (! $matchedGroupId && $catchAll) {
+                $matchedGroupId = $catchAll->id;
+            }
+
+            if ($matchedGroupId && isset($counts[$matchedGroupId])) {
+                $counts[$matchedGroupId]++;
+            }
+        }
+
+        // Simpan jumlah aktif terverifikasi ke tabel kelompok_kuotas
+        foreach ($groups as $group) {
+            $newActive = $counts[$group->id] ?? 0;
+            if ($group->aktif !== $newActive) {
+                $group->update(['aktif' => $newActive]);
+            }
+        }
     }
 
     /**

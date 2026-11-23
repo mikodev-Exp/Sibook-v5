@@ -26,27 +26,30 @@
     </nav>
 
     {{-- ── Header + Stats ────────────────────────────────── --}}
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
         <div>
-            <h1 class="text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight">Permohonan Magang</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Verifikasi berkas pengajuan calon peserta magang</p>
+            <div class="inline-flex items-center gap-2 text-xs font-mono-tag text-zinc-400 uppercase tracking-widest mb-1.5">
+                <span>// CURATORIAL QUEUE</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-zinc-950 tracking-tight">Permohonan Masuk</h1>
+            <p class="text-xs text-zinc-500 mt-1">Verifikasi berkas calon peserta dan kelayakan alokasi slot kuota magang.</p>
         </div>
         {{-- Stat chips --}}
-        <div class="flex flex-wrap gap-2">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-semibold text-gray-600">
-                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-white text-gray-800 font-bold shadow-sm">{{ $stats['total'] }}</span> Total
+        <div class="flex flex-wrap gap-2.5 font-mono-tag text-xs">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-zinc-800 border border-zinc-200 shadow-xs">
+                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-zinc-950 text-white font-bold text-[10px]">{{ $stats['total'] }}</span> TOTAL
             </div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-xs font-semibold text-amber-700 border border-amber-200">
-                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-amber-100 font-bold">{{ $stats['pending'] }}</span> Menunggu
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-amber-100 font-bold text-[10px]">{{ $stats['pending'] }}</span> MENUNGGU
             </div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-xs font-semibold text-blue-700 border border-blue-200">
-                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-blue-100 font-bold">{{ $stats['reviewed'] }}</span> Ditinjau
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 text-zinc-800 border border-zinc-300">
+                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-zinc-200 font-bold text-[10px]">{{ $stats['reviewed'] }}</span> DITINJAU
             </div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-100 font-bold">{{ $stats['approved'] }}</span> Disetujui
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-100 font-bold text-[10px]">{{ $stats['approved'] }}</span> APPROVED
             </div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-xs font-semibold text-rose-700 border border-rose-200">
-                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-rose-100 font-bold">{{ $stats['rejected'] }}</span> Ditolak
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-5 h-5 flex items-center justify-center rounded-full bg-rose-100 font-bold text-[10px]">{{ $stats['rejected'] }}</span> REJECTED
             </div>
         </div>
     </div>
@@ -87,16 +90,16 @@
                             ? route('admin.permohonan.index', array_merge(request()->except('page'), ['status' => $val]))
                             : route('admin.permohonan.index', request()->except(['status','page']));
                         $activeClass = match($color) {
-                            'amber'   => 'bg-amber-50 text-amber-700 border border-amber-300',
-                            'blue'    => 'bg-blue-50 text-blue-700 border border-blue-300',
-                            'emerald' => 'bg-emerald-50 text-emerald-700 border border-emerald-300',
-                            'rose'    => 'bg-rose-50 text-rose-700 border border-rose-300',
-                            default   => 'bg-orange-50 text-orange-700 border border-orange-300',
+                            'amber'   => 'bg-amber-50 text-amber-800 border border-amber-300 font-mono-tag',
+                            'blue'    => 'bg-zinc-100 text-zinc-900 border border-zinc-300 font-mono-tag',
+                            'emerald' => 'bg-emerald-50 text-emerald-800 border border-emerald-300 font-mono-tag',
+                            'rose'    => 'bg-rose-50 text-rose-800 border border-rose-300 font-mono-tag',
+                            default   => 'bg-zinc-950 text-white font-mono-tag shadow-xs',
                         };
                     @endphp
                     <a href="{{ $href }}"
-                       class="px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150
-                              {{ $isActive ? $activeClass : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100 border border-transparent' }}">
+                       class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150
+                              {{ $isActive ? $activeClass : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent font-mono-tag' }}">
                         {{ $label }}
                     </a>
                 @endforeach

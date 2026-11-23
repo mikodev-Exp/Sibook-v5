@@ -16,7 +16,7 @@ class PersyaratanMagangSeeder extends Seeder
             ['nama' => 'Sains, Teknologi, Teknik & Matematika'],
             [
                 'kuota'        => 35,
-                'aktif'        => 18,
+                'aktif'        => 0,
                 'is_catch_all' => false,
                 'urutan'       => 1,
             ]
@@ -46,7 +46,7 @@ class PersyaratanMagangSeeder extends Seeder
             [
                 'nama'        => 'Lainnya',
                 'kuota'       => 10,
-                'aktif'       => 8,
+                'aktif'       => 0,
                 'urutan'      => 99,
             ]
         );
@@ -79,5 +79,9 @@ class PersyaratanMagangSeeder extends Seeder
                 ],
             ]
         );
+
+        // Sinkronkan jumlah aktif dari database nyata dan bersihkan cache
+        app(\App\Services\PersyaratanMagangService::class)->syncActiveFromDatabase();
+        app(\App\Services\PersyaratanMagangService::class)->clearCache();
     }
 }
