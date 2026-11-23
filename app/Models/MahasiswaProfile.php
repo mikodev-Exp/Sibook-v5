@@ -9,7 +9,8 @@ class MahasiswaProfile extends Model
 {
     protected $fillable = [
         'user_id', 'nim', 'universitas', 'program_studi', 'jurusan', 'no_hp', 'angkatan',
-        'jenis_kelamin', 'link_pasfoto', 'username_ig', 'status_konversi', 'device', 'punya_bpjs'
+        'jenis_kelamin', 'link_pasfoto', 'username_ig', 'status_konversi', 'device', 'punya_bpjs',
+        'nama_dosen_pembimbing', 'no_hp_dosen_pembimbing',
     ];
 
     public function user(): BelongsTo

@@ -154,15 +154,29 @@
             @endif
         </a>
 
+        {{-- Persyaratan Magang --}}
+        <a href="{{ route('admin.persyaratan-magang.index') }}"
+           class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] transition-colors duration-150
+                  {{ request()->routeIs('admin.persyaratan-magang.*', 'admin.requirement-magang.*') 
+                     ? 'bg-[#FEF6EE] text-[#E06D28] font-semibold' 
+                     : 'text-[#4B5563] hover:text-[#111827] hover:bg-gray-50/80 font-normal' }}">
+            {{-- Clipboard Document Check Icon --}}
+            <svg class="w-[18px] h-[18px] flex-shrink-0 {{ request()->routeIs('admin.persyaratan-magang.*', 'admin.requirement-magang.*') ? 'text-[#E06D28]' : 'text-[#9CA3AF]' }}" 
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <span>Persyaratan Magang</span>
+        </a>
+
     </div>
 
-    {{-- Bottom Section: Presensi with Chevron (Persis di gambar, tanpa garis border atas kaku) --}}
+    {{-- Bottom Section: Presensi Quick Link --}}
     <div class="px-3.5 pt-4">
-        <div class="flex items-center justify-between text-[#4B5563] text-[13px] font-normal cursor-pointer hover:text-[#111827] transition">
+        <a href="{{ route('admin.presensi.index') }}" class="flex items-center justify-between text-[#4B5563] text-[13px] font-normal hover:text-[#E06D28] transition">
             <span>Presensi</span>
             <svg class="w-3.5 h-3.5 text-[#9CA3AF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
-        </div>
+        </a>
     </div>
 </aside>

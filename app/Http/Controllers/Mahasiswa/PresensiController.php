@@ -67,6 +67,11 @@ class PresensiController extends Controller
 
         $hariIni = today();
 
+        // Presensi mahasiswa hanya berlaku hari kerja (tanpa Sabtu dan Minggu)
+        if ($hariIni->isWeekend()) {
+            return back()->with('error', 'Presensi magang tidak berlaku pada hari libur akhir pekan (Sabtu dan Minggu).');
+        }
+
         // Cek sudah absen atau belum
         if ($user->presensis()->where('tanggal', $hariIni)->exists()) {
             return back()->with('error', 'Anda sudah melakukan presensi masuk hari ini.');
@@ -170,6 +175,11 @@ class PresensiController extends Controller
 
         $user = Auth::user();
         $hariIni = today();
+
+        // Presensi mahasiswa hanya berlaku hari kerja (tanpa Sabtu dan Minggu)
+        if ($hariIni->isWeekend()) {
+            return back()->with('error', 'Presensi magang tidak berlaku pada hari libur akhir pekan (Sabtu dan Minggu).');
+        }
 
         if ($user->presensis()->where('tanggal', $hariIni)->exists()) {
             return back()->with('error', 'Anda sudah melakukan presensi hari ini.');

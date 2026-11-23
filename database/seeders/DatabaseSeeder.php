@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             SuperUserSeeder::class,
             AdminSeeder::class,
             PengaturanSeeder::class,
+            PersyaratanMagangSeeder::class,
         ]);
     }
 }

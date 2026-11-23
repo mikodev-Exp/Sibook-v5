@@ -6,9 +6,11 @@ use App\Enums\StatusMagang;
 use App\Enums\StatusPermohonan;
 use App\Http\Controllers\Controller;
 use App\Models\Magang;
+use App\Models\PermohonanDokumen;
 use App\Models\PermohonanMagang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PermohonanController extends Controller
 {
@@ -113,5 +115,23 @@ class PermohonanController extends Controller
         return back()->with('success', $newStatus === StatusPermohonan::Approved
             ? 'Permohonan disetujui. Akun telah aktif sebagai Mahasiswa Magang.'
             : 'Status permohonan berhasil diperbarui.');
+    }
+
+    public function dokumen(Request $request, PermohonanMagang $permohonan, PermohonanDokumen $dokumen)
+    {
+        abort_unless($dokumen->permohonan_id === $permohonan->id, 404);
+
+        $disk = Storage::disk('public');
+        abort_unless($disk->exists($dokumen->path), 404, 'Berkas dokumen tidak ditemukan di server.');
+
+        $fileName = $dokumen->nama_asli ?? basename($dokumen->path);
+
+        if ($request->boolean('download')) {
+            return $disk->download($dokumen->path, $fileName);
+        }
+
+        return $disk->response($dokumen->path, $fileName, [
+            'Content-Disposition' => 'inline; filename="' . addslashes($fileName) . '"',
+        ]);
     }
 }

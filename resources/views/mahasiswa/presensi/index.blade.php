@@ -29,7 +29,10 @@
         <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 z-10">
             <div>
                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold backdrop-blur-sm">
-                    @if($pulangSudah)
+                    @if(today()->isWeekend())
+                        <span class="w-2 h-2 rounded-full bg-amber-300"></span>
+                        Akhir Pekan (Sabtu/Minggu) — Presensi Libur
+                    @elseif($pulangSudah)
                         <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
                         Presensi hari ini sudah lengkap
                     @elseif($masukSudah)
@@ -149,7 +152,12 @@
                         <p class="text-[11px] text-emerald-700 mt-0.5">Pukul <b>{{ $presensiHariIni->jam_masuk }}</b> WIB</p>
                     </div>
                 @else
-                    @if(!$isMagangValid)
+                    @if(today()->isWeekend())
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                            <p class="text-xs font-bold text-amber-800">Hari Libur Akhir Pekan</p>
+                            <p class="text-[11px] text-amber-600 mt-0.5">Presensi magang tidak berlaku pada hari Sabtu dan Minggu.</p>
+                        </div>
+                    @elseif(!$isMagangValid)
                         <div class="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
                             <p class="text-xs font-semibold text-gray-500">Presensi Masuk Ditutup</p>
                             <p class="text-[11px] text-gray-400 mt-0.5">Periode magang belum aktif atau telah berakhir</p>
@@ -244,14 +252,21 @@
             </div>
 
             <div class="mt-6">
-                <button type="button" @click="openCamera()"
-                        class="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center justify-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span>Buka Kamera Presensi</span>
-                </button>
+                @if(today()->isWeekend())
+                    <button type="button" disabled
+                            class="w-full py-2.5 px-4 bg-gray-100 text-gray-400 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5 border border-gray-200">
+                        <span>Libur Akhir Pekan</span>
+                    </button>
+                @else
+                    <button type="button" @click="openCamera()"
+                            class="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>Buka Kamera Presensi</span>
+                    </button>
+                @endif
             </div>
         </div>
 

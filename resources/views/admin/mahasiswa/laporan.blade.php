@@ -22,6 +22,15 @@
 
         {{-- Action Buttons --}}
         <div class="flex items-center gap-2.5">
+            {{-- Tombol Kembali --}}
+            <a href="{{ route('admin.mahasiswa.index') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-xl text-xs font-semibold shadow-sm transition">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Kembali</span>
+            </a>
+
             {{-- Tombol Export Excel --}}
             <a href="{{ route('admin.mahasiswa.laporan.export', ['user' => $user->id, 'bulan' => request('bulan')]) }}" 
                class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">

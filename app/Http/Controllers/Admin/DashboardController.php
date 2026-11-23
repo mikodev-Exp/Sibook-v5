@@ -84,16 +84,6 @@ class DashboardController extends Controller
             ->pluck('total', 'nama_tim')
             ->toArray();
 
-        if (empty($timDistribution)) {
-            $timDistribution = [
-                'IPDS' => 12,
-                'Humas' => 8,
-                'Neraca' => 6,
-                'Sosial' => 5,
-                'Umum' => 4,
-            ];
-        }
-
         // 5. Logbook Terbaru yang Membutuhkan Verifikasi
         $logbookTerbaru = Logbook::with(['user.mahasiswaProfile'])
             ->where('status', 'submitted')
@@ -108,8 +98,11 @@ class DashboardController extends Controller
                 ->get();
         }
 
-        // 6. Top Universitas Mahasiswa Magang
-        $topUniversitas = MahasiswaProfile::whereNotNull('universitas')
+        // 6. Top Universitas Mahasiswa Magang (hanya yang sudah berstatus role mahasiswa)
+        $topUniversitas = MahasiswaProfile::whereHas('user', function ($q) {
+                $q->role('mahasiswa');
+            })
+            ->whereNotNull('universitas')
             ->where('universitas', '!=', '')
             ->selectRaw('universitas, count(*) as total')
             ->groupBy('universitas')
