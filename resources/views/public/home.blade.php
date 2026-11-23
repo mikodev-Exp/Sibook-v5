@@ -144,44 +144,45 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Visual Exhibition Placard Column --}}
-                    <div class="lg:col-span-5">
-                        <div class="bg-gradient-to-br from-zinc-900 to-zinc-950 text-white rounded-3xl p-7 border border-zinc-800 shadow-2xl relative overflow-hidden group">
-                            {{-- Ambient Glow --}}
-                            <div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
-
-                            <div class="flex items-center justify-between mb-8 pb-4 border-b border-zinc-800">
-                                <div>
-                                    <p class="text-[10px] font-mono-tag uppercase tracking-wider text-zinc-400">EXHIBITION ARCHIVE</p>
-                                    <h3 class="text-sm font-bold text-zinc-100">BPS Internship Edition</h3>
+                    {{-- Visual Exhibition Placard Column with Curated Artwork --}}
+                    <div class="lg:col-span-5 relative">
+                        <div class="relative bg-zinc-950 rounded-3xl p-3 border border-zinc-800 shadow-2xl overflow-hidden group">
+                            {{-- Image Container (Artwork Canvas) --}}
+                            <div class="relative h-72 sm:h-80 w-full rounded-2xl overflow-hidden bg-zinc-900">
+                                <img src="{{ asset('images/hero-image.jpeg') }}" 
+                                     alt="Mahasiswa Magang BPS Kota Surabaya" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-95 contrast-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
+                                <div class="absolute top-3 left-3 bg-zinc-950/80 backdrop-blur-md px-3 py-1 rounded-full border border-zinc-700/60 text-[10px] font-mono-tag text-zinc-300">
+                                    // EXHIBITION PIECE #3578
                                 </div>
-                                <div class="bg-white rounded-xl p-1.5 shadow-sm">
-                                    <x-logo-bps class="h-6 w-auto object-contain" />
+                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md rounded-xl p-1.5 shadow-sm">
+                                    <x-logo-bps class="h-5 w-auto object-contain" />
                                 </div>
                             </div>
 
-                            <div class="space-y-4 font-mono-tag">
-                                <div class="p-3.5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between">
-                                    <span class="text-xs text-zinc-400">STATUS ALOKASI</span>
-                                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                            {{-- Curatorial Placard Info --}}
+                            <div class="p-5 font-mono-tag space-y-3">
+                                <div class="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+                                    <div>
+                                        <p class="text-[10px] uppercase tracking-wider text-zinc-400">EDITION {{ date('Y') }}</p>
+                                        <h3 class="text-xs font-bold text-zinc-100">BPS Surabaya Internship Program</h3>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                                         LIVE ON-CHAIN
                                     </span>
                                 </div>
-                                <div class="p-3.5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between">
-                                    <span class="text-xs text-zinc-400">TOTAL KAPASITAS</span>
-                                    <span class="text-xs font-bold text-zinc-200">{{ $requirementData['total_quota'] ?? 45 }} SLOT TERSEDIA</span>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800">
+                                        <span class="text-[10px] text-zinc-400 block mb-0.5">KAPASITAS TOTAL</span>
+                                        <span class="font-bold text-zinc-100">{{ $requirementData['total_quota'] ?? 45 }} SLOT</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800">
+                                        <span class="text-[10px] text-zinc-400 block mb-0.5">MAHASISWA AKTIF</span>
+                                        <span class="font-bold text-indigo-300">{{ $requirementData['total_active'] ?? 0 }} MAHASISWA</span>
+                                    </div>
                                 </div>
-                                <div class="p-3.5 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-between">
-                                    <span class="text-xs text-zinc-400">MAHASISWA AKTIF</span>
-                                    <span class="text-xs font-bold text-indigo-300">{{ $requirementData['total_active'] ?? 0 }} MAHASISWA</span>
-                                </div>
-                            </div>
-
-                            <div class="mt-8 pt-4 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500 font-mono-tag">
-                                <span>VERIFICATION: BPS-3578</span>
-                                <span class="text-zinc-400">EDITION {{ date('Y') }}</span>
                             </div>
                         </div>
                     </div>
