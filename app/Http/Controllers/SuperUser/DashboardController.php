@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperUser;
 
 use App\Http\Controllers\Controller;
+use App\Enums\StatusPermohonan;
 use App\Models\User;
 use App\Models\PermohonanMagang;
 use App\Models\Presensi;
@@ -23,7 +24,7 @@ class DashboardController extends Controller
         
         $presensiHariIni = Presensi::where('tanggal', today())->count();
         $logbookPending = Logbook::where('status', 'draft')->count();
-        $pengajuanMasuk = PermohonanMagang::whereIn('status', ['submitted', 'reviewed_by_admin'])->count(); // Typo sudah diperbaiki
+        $pengajuanMasuk = PermohonanMagang::where('status', StatusPermohonan::ReviewedByAdmin)->count();
         $perizinanPending = Perizinan::where('status', 'submitted')->count();
 
         // 2. Data Presensi Terkini

@@ -478,58 +478,56 @@
             </div>
             @endif
 
-            {{-- ── Action Panel ──────────────────────────────── --}}
+            {{-- ── Action Panel (Hierarki Kurasi Admin) ──────────────────────────────── --}}
             @if(in_array($st->value, ['submitted', 'reviewed_by_admin']))
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 card-anim">
-                <h2 class="text-sm font-bold text-gray-700 mb-2">Ambil Tindakan</h2>
-                <p class="text-[11px] text-gray-400 mb-4 leading-relaxed">
-                    Saat disetujui, akun pemohon otomatis dialihkan menjadi role Mahasiswa dan periode magang aktif sesuai tanggal rencana.
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <h2 class="text-sm font-bold text-gray-800">Tinjauan Kelayakan Berkas</h2>
+                </div>
+                <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">
+                    Sesuai hierarki otoritas, Admin berwenang memverifikasi kelayakan berkas pendaftar. Keputusan akhir untuk menerima pendaftar menjadi <strong>Mahasiswa Magang</strong> berada pada <strong>Super Admin</strong>.
                 </p>
 
                 {{-- Tinjau (submitted → reviewed_by_admin) --}}
                 @if($st->value === 'submitted')
-                <form method="POST" action="{{ route('admin.permohonan.update-status', $permohonan->id) }}">
+                <form method="POST" action="{{ route('admin.permohonan.update-status', $permohonan->id) }}" class="space-y-2">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="reviewed_by_admin">
                     <textarea name="catatan_admin"
-                              placeholder="Catatan tinjauan (opsional)…"
+                              placeholder="Catatan tinjauan kelayakan (opsional)…"
                               rows="2"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl mb-2 resize-none
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl resize-none
                                      focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"></textarea>
                     <button type="submit"
-                            class="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold
-                                   transition shadow-sm">
-                        Tinjau Berkas (Admin)
+                            class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold
+                                   transition shadow-sm flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Nyatakan Layak &amp; Teruskan ke Super Admin</span>
                     </button>
                 </form>
                 @endif
 
-                {{-- Setujui (reviewed_by_admin → approved) --}}
+                {{-- Sudah Ditinjau Admin, Menunggu Super Admin --}}
                 @if($st->value === 'reviewed_by_admin')
-                <form method="POST" action="{{ route('admin.permohonan.update-status', $permohonan->id) }}">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="approved">
-                    <textarea name="catatan_admin"
-                              placeholder="Catatan persetujuan (opsional)…"
-                              rows="2"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl mb-2 resize-none
-                                     focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition"></textarea>
-                    <button type="submit"
-                            class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold
-                                   transition shadow-sm">
-                        Setujui Berkas
-                    </button>
-                </form>
+                <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200/80 mb-3 space-y-1.5 text-xs text-blue-900">
+                    <div class="font-bold flex items-center gap-1.5 text-blue-800">
+                        <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Menunggu Keputusan Super Admin</span>
+                    </div>
+                    <p class="text-[11px] text-blue-700 leading-relaxed">
+                        Berkas telah ditinjau dan dinyatakan <strong>LAYAK</strong> oleh Admin. Berkas ini kini berada di antrean finalisasi Super Admin untuk persetujuan resmi.
+                    </p>
+                </div>
                 @endif
 
-                {{-- Tolak (always visible for pending statuses) --}}
+                {{-- Tolak (Tersedia bagi Admin jika berkas tidak memenuhi syarat) --}}
                 <div class="mt-3 pt-3 border-t border-gray-100" x-data="{ showReject: false }">
                     <button type="button" @click="showReject = !showReject"
                             class="w-full py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold
                                    transition border border-rose-200">
-                        Tolak Permohonan
+                        Nyatakan Tidak Layak / Tolak
                     </button>
                     <form method="POST" action="{{ route('admin.permohonan.update-status', $permohonan->id) }}"
                           x-show="showReject" x-transition class="mt-2 space-y-2">
@@ -537,14 +535,14 @@
                         @method('PATCH')
                         <input type="hidden" name="status" value="rejected">
                         <textarea name="catatan_admin"
-                                  placeholder="Alasan penolakan (wajib)…"
+                                  placeholder="Alasan berkas dinyatakan tidak layak (wajib)…"
                                   rows="2" required
                                   class="w-full px-3 py-2 text-xs border border-rose-200 rounded-xl resize-none
                                          focus:outline-none focus:ring-2 focus:ring-rose-400 transition"></textarea>
                         <button type="submit"
                                 class="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold
                                        transition shadow-sm">
-                            Konfirmasi Tolak
+                            Konfirmasi Tolak (Tidak Layak)
                         </button>
                     </form>
                 </div>

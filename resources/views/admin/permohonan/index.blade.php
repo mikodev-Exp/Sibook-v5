@@ -266,12 +266,12 @@
                                         Detail
                                     </a>
 
-                                    {{-- Action dropdown (hanya untuk status yang bisa diaksi) --}}
-                                    @if(in_array($st->value, ['submitted', 'reviewed_by_admin']))
+                                    {{-- Action dropdown (hanya untuk status yang bisa diaksi oleh Admin) --}}
+                                    @if($st->value === 'submitted')
                                         <div x-data="{ open: false }" class="relative">
                                             <button @click="open = !open" type="button"
                                                     class="no-async inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-semibold transition shadow-sm">
-                                                Proses
+                                                Tinjau
                                                 <svg class="w-3 h-3" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                             </button>
 
@@ -283,31 +283,40 @@
                                                  x-transition:leave="transition ease-in duration-75"
                                                  x-transition:leave-start="opacity-100 scale-100"
                                                  x-transition:leave-end="opacity-0 scale-95"
-                                                 class="absolute right-0 mt-1 w-56 bg-white rounded-xl border border-gray-200 shadow-lg z-30 overflow-hidden">
+                                                 class="absolute right-0 mt-1 w-64 bg-white rounded-xl border border-gray-200 shadow-lg z-30 overflow-hidden">
 
-                                                {{-- Setujui --}}
-                                                @if($st->value === 'submitted')
-                                                    <button type="button"
-                                                            @click="open=false; openAction({{ $p->id }}, 'reviewed_by_admin')"
-                                                            class="no-async w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 transition">
-                                                        <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                                        Tinjau Berkas (Admin)
-                                                    </button>
-                                                @endif
-                                                @if($st->value === 'reviewed_by_admin')
-                                                    <button type="button"
-                                                            @click="open=false; openAction({{ $p->id }}, 'approved')"
-                                                            class="no-async w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition">
-                                                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                                        Setujui Berkas
-                                                    </button>
-                                                @endif
+                                                <button type="button"
+                                                        @click="open=false; openAction({{ $p->id }}, 'reviewed_by_admin')"
+                                                        class="no-async w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 transition">
+                                                    <svg class="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                    <span>Layak &amp; Teruskan ke Super Admin</span>
+                                                </button>
+
                                                 <div class="border-t border-gray-100"></div>
+
                                                 <button type="button"
                                                         @click="open=false; openAction({{ $p->id }}, 'rejected')"
                                                         class="no-async w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
-                                                    <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                                    Tolak Permohonan
+                                                    <svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    <span>Tolak (Tidak Layak)</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @elseif($st->value === 'reviewed_by_admin')
+                                        <div x-data="{ open: false }" class="relative">
+                                            <button @click="open = !open" type="button"
+                                                    class="no-async inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-semibold transition shadow-xs">
+                                                <span>Menunggu Super Admin</span>
+                                                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                            </button>
+                                            <div x-show="open"
+                                                 @click.away="open = false"
+                                                 class="absolute right-0 mt-1 w-48 bg-white rounded-xl border border-gray-200 shadow-lg z-30 overflow-hidden">
+                                                <button type="button"
+                                                        @click="open=false; openAction({{ $p->id }}, 'rejected')"
+                                                        class="no-async w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
+                                                    <svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    <span>Ubah jadi Tidak Layak</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -380,18 +389,16 @@
         <div class="px-5 py-4 flex items-center justify-between border-b border-gray-100"
              :class="{
                  'bg-blue-50': targetStatus==='reviewed_by_admin',
-                 'bg-emerald-50': targetStatus==='approved',
                  'bg-rose-50': targetStatus==='rejected'
              }">
             <div>
                 <h3 class="font-bold text-sm text-gray-900"
-                    x-text="targetStatus==='reviewed_by_admin' ? 'Tinjau Berkas'
-                           : targetStatus==='approved' ? 'Setujui Berkas'
-                           : 'Tolak Permohonan'"></h3>
+                    x-text="targetStatus==='reviewed_by_admin' ? 'Tinjau & Rekomendasikan Layak'
+                           : 'Tolak Permohonan (Tidak Layak)'"></h3>
                 <p class="text-[11px] text-gray-500 mt-0.5"
-                   x-text="targetStatus==='rejected'
-                           ? 'Permohonan ini akan ditolak.'
-                           : (targetStatus==='approved' ? 'Akun pemohon otomatis aktif sebagai Mahasiswa.' : 'Tinjauan berkas tahap verifikasi admin.')"></p>
+                   x-text="targetStatus==='reviewed_by_admin'
+                           ? 'Berkas diverifikasi dan diteruskan ke Super Admin untuk persetujuan akhir.'
+                           : 'Permohonan ditolak dan tidak diteruskan ke Super Admin.'"></p>
             </div>
             <button @click="show=false" class="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition">
                 <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -422,9 +429,9 @@
                 <div class="flex items-start gap-2 px-3 py-2 rounded-xl bg-orange-50 border border-orange-100">
                     <svg class="w-3.5 h-3.5 text-orange-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <p class="text-[10.5px] text-orange-700 leading-relaxed"
-                       x-text="targetStatus==='approved'
-                               ? 'Saat disetujui, akun pemohon otomatis dialihkan menjadi role Mahasiswa dan periode magang aktif sesuai tanggal rencana.'
-                               : (targetStatus==='rejected' ? 'Permohonan ditolak dan pemohon akan menerima catatan ini.' : 'Tinjauan berkas tahap verifikasi admin.')">
+                       x-text="targetStatus==='reviewed_by_admin'
+                               ? 'Status permohonan akan menjadi \"Ditinjau Admin\" (Layak) dan masuk antrean persetujuan Super Admin. Admin tidak mengubah role pendaftar.'
+                               : 'Permohonan ditolak dan pemohon akan menerima alasan penolakan ini.'">
                     </p>
                 </div>
             </div>
@@ -437,15 +444,13 @@
                 </button>
                 <button type="submit" :disabled="loading"
                         :class="{
-                            'bg-blue-500 hover:bg-blue-600': targetStatus==='reviewed_by_admin',
-                            'bg-emerald-500 hover:bg-emerald-600': targetStatus==='approved',
+                            'bg-blue-600 hover:bg-blue-700': targetStatus==='reviewed_by_admin',
                             'bg-rose-500 hover:bg-rose-600': targetStatus==='rejected'
                         }"
                         class="px-4 py-2 rounded-xl text-xs font-semibold text-white transition shadow-sm disabled:opacity-60">
                     <span x-show="!loading"
-                          x-text="targetStatus==='reviewed_by_admin' ? 'Ya, Tinjau'
-                                 : targetStatus==='approved' ? 'Ya, Setujui'
-                                 : 'Ya, Tolak'"></span>
+                          x-text="targetStatus==='reviewed_by_admin' ? 'Ya, Teruskan ke Super Admin'
+                                 : 'Ya, Tolak Permohonan'"></span>
                     <span x-show="loading">Memproses…</span>
                 </button>
             </div>

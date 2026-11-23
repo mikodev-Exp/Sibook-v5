@@ -56,8 +56,10 @@ class PermohonanController extends Controller
 
     public function updateStatus(Request $request, PermohonanMagang $permohonan)
     {
+        // Admin hanya berwenang meninjau kelayakan (reviewed_by_admin = Layak, rejected = Tidak Layak/Tolak)
+        // Persetujuan akhir (Approved) dan alih role menjadi Mahasiswa sepenuhnya merupakan hak prerogatif Super Admin
         $request->validate([
-            'status'        => ['required', 'in:reviewed_by_admin,approved,rejected'],
+            'status'        => ['required', 'in:reviewed_by_admin,rejected'],
             'catatan_admin' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -70,55 +72,33 @@ class PermohonanController extends Controller
             'reviewed_at'   => now(),
         ]);
 
-        // Update role dan status magang mahasiswa jika disetujui / ditolak
         $user = $permohonan->user;
-        if ($user) {
-            if ($newStatus === StatusPermohonan::Approved) {
-                // Beri role mahasiswa
-                $user->syncRoles(['mahasiswa']);
-
-                // Tentukan periode magang dari tanggal rencana permohonan
-                $mulai = $permohonan->tanggal_mulai_rencana ? \Carbon\Carbon::parse($permohonan->tanggal_mulai_rencana) : today();
-                $selesai = $permohonan->tanggal_selesai_rencana ? \Carbon\Carbon::parse($permohonan->tanggal_selesai_rencana) : $mulai->copy()->addMonths(3);
-
-                // Jika sudah melewati tanggal selesai maka statusnya completed, selain itu active
-                $statusMagang = today()->gt($selesai) ? StatusMagang::Completed : StatusMagang::Active;
-
-                Magang::updateOrCreate(
-                    ['user_id' => $user->id],
-                    [
-                        'tanggal_mulai'   => $mulai,
-                        'tanggal_selesai' => $selesai,
-                        'status'          => $statusMagang,
-                    ]
-                );
-            } elseif ($newStatus === StatusPermohonan::Rejected) {
-                // Jika ditolak dan user bukan admin/superuser, kembalikan ke pendaftar
-                if (!$user->hasRole('admin') && !$user->hasRole('super_user')) {
-                    $user->syncRoles(['pendaftar']);
-                    if ($user->magang) {
-                        $user->magang->update(['status' => StatusMagang::Terminated]);
-                    }
+        if ($user && $newStatus === StatusPermohonan::Rejected) {
+            // Jika dinyatakan tidak layak/ditolak dan user bukan staf, pastikan role pendaftar
+            if (!$user->hasRole('admin') && !$user->hasRole('super_user')) {
+                $user->syncRoles(['pendaftar']);
+                if ($user->magang) {
+                    $user->magang->update(['status' => StatusMagang::Terminated]);
                 }
             }
-
-            // Sinkronkan data kuota magang aktif dan bersihkan cache landing page
-            app(\App\Services\PersyaratanMagangService::class)->syncActiveFromDatabase();
-            app(\App\Services\PersyaratanMagangService::class)->clearCache();
         }
+
+        // Sinkronkan data kuota magang aktif dan bersihkan cache landing page
+        app(\App\Services\PersyaratanMagangService::class)->syncActiveFromDatabase();
+        app(\App\Services\PersyaratanMagangService::class)->clearCache();
+
+        $message = $newStatus === StatusPermohonan::ReviewedByAdmin
+            ? 'Berkas berhasil ditinjau (Dinyatakan Layak) dan diteruskan ke Super Admin untuk persetujuan akhir.'
+            : 'Permohonan dinyatakan Tidak Layak / Ditolak.';
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
-                'ok' => true,
-                'message' => $newStatus === StatusPermohonan::Approved
-                    ? 'Permohonan disetujui. Akun telah aktif sebagai Mahasiswa Magang.'
-                    : 'Status permohonan berhasil diperbarui.'
+                'ok'      => true,
+                'message' => $message,
             ]);
         }
 
-        return back()->with('success', $newStatus === StatusPermohonan::Approved
-            ? 'Permohonan disetujui. Akun telah aktif sebagai Mahasiswa Magang.'
-            : 'Status permohonan berhasil diperbarui.');
+        return back()->with('success', $message);
     }
 
     public function dokumen(Request $request, PermohonanMagang $permohonan, PermohonanDokumen $dokumen)

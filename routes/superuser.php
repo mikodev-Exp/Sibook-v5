@@ -19,4 +19,5 @@ Route::middleware(['auth', 'verified', 'role:super_user'])
         
         // Fitur Pengaturan
         Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
+        Route::put('/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
     });
