@@ -399,72 +399,117 @@
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 card-anim">
                 <h2 class="text-sm font-bold text-gray-700 mb-4">Status Verifikasi</h2>
 
-                {{-- Timeline status --}}
+                {{-- Timeline status 5 tahap hierarki --}}
                 @php
-                    $timeline = [
-                        ['draft',              'Draft',                        'gray'],
-                        ['submitted',          'Diajukan',                     'amber'],
-                        ['reviewed_by_admin',  'Ditinjau Admin',               'blue'],
-                        ['approved',           'Disetujui',                    'emerald'],
-                    ];
                     $stVal = $st->value;
-                    $order = ['draft'=>0,'submitted'=>1,'reviewed_by_admin'=>2,'approved'=>3,'rejected'=>3];
-                    $curOrder = $order[$stVal] ?? 0;
+                    $isSuperUserRejected = ($stVal === 'rejected' && $permohonan->approved_by);
+                    $isAdminRejected = ($stVal === 'rejected' && !$isSuperUserRejected);
+
+                    // Step aktif hierarki:
+                    // 1: Draft
+                    // 2: Diajukan
+                    // 3: Ditinjau Admin
+                    // 4: Ditinjau Super Admin
+                    // 5: Keputusan Akhir (Disetujui / Ditolak)
+                    $activeStep = match($stVal) {
+                        'draft'             => 1,
+                        'submitted'         => 3,
+                        'reviewed_by_admin' => 4,
+                        'approved'          => 5,
+                        'rejected'          => ($isSuperUserRejected ? 5 : 3),
+                        default             => 1,
+                    };
+
+                    $steps = [
+                        1 => ['label' => 'Draft', 'desc' => 'Penyusunan berkas'],
+                        2 => ['label' => 'Diajukan', 'desc' => 'Terkirim ke sistem'],
+                        3 => ['label' => 'Ditinjau Admin', 'desc' => 'Verifikasi kelayakan berkas'],
+                        4 => ['label' => 'Ditinjau Super Admin', 'desc' => 'Evaluasi kelayakan akhir'],
+                        5 => [
+                            'label' => $stVal === 'approved' ? 'Disetujui' : ($stVal === 'rejected' ? 'Ditolak' : 'Disetujui / Ditolak'),
+                            'desc'  => 'Penerbitan hak akses mahasiswa'
+                        ],
+                    ];
                 @endphp
-                <div class="relative pl-5 space-y-3">
+
+                <div class="relative pl-5 space-y-4">
                     <div class="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-100"></div>
-                    @if($stVal === 'rejected')
-                        @foreach($timeline as [$tVal, $tLabel, $tColor])
-                            @php $done = $order[$tVal] < $curOrder; @endphp
-                            <div class="flex items-center gap-2.5 relative">
-                                <div class="w-4 h-4 rounded-full border-2 shrink-0 z-10
-                                    {{ $done ? 'bg-emerald-400 border-emerald-400' : 'bg-gray-100 border-gray-200' }}
-                                    flex items-center justify-center">
-                                    @if($done)
-                                        <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                    @endif
-                                </div>
-                                <span class="text-xs {{ $done ? 'text-gray-700 font-semibold' : 'text-gray-400' }}">{{ $tLabel }}</span>
-                            </div>
-                        @endforeach
-                        <div class="flex items-center gap-2.5 relative">
-                            <div class="w-4 h-4 rounded-full border-2 bg-rose-500 border-rose-500 shrink-0 z-10 flex items-center justify-center">
-                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                            </div>
-                            <span class="text-xs text-rose-600 font-bold">Ditolak</span>
-                        </div>
-                    @else
-                        @foreach($timeline as [$tVal, $tLabel, $tColor])
-                            @php
-                                $done    = $order[$tVal] < $curOrder;
-                                $current = $tVal === $stVal;
-                            @endphp
-                            <div class="flex items-center gap-2.5 relative">
-                                <div class="w-4 h-4 rounded-full border-2 shrink-0 z-10
-                                    {{ $current ? 'bg-orange-500 border-orange-500 shadow-sm shadow-orange-200' : ($done ? 'bg-emerald-400 border-emerald-400' : 'bg-gray-100 border-gray-200') }}
-                                    flex items-center justify-center">
-                                    @if($done)
-                                        <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                    @elseif($current)
-                                        <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                    @endif
-                                </div>
-                                <span class="text-xs {{ $current ? 'text-orange-600 font-bold' : ($done ? 'text-gray-700 font-semibold' : 'text-gray-400') }}">
-                                    {{ $tLabel }}
-                                </span>
-                                @if($current)
-                                    <span class="ml-auto text-[10px] text-orange-500 font-semibold bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded-full">Sekarang</span>
+
+                    @foreach($steps as $stepNum => $stepData)
+                        @php
+                            $isDone = false;
+                            $isCurrent = false;
+                            $isFailed = false;
+
+                            if ($stVal === 'rejected') {
+                                if ($stepNum < $activeStep) {
+                                    $isDone = true;
+                                } elseif ($stepNum === $activeStep) {
+                                    $isFailed = true;
+                                }
+                            } else {
+                                if ($stepNum < $activeStep) {
+                                    $isDone = true;
+                                } elseif ($stepNum === $activeStep) {
+                                    $isCurrent = true;
+                                }
+                            }
+                        @endphp
+
+                        <div class="flex items-start gap-2.5 relative">
+                            {{-- Step Dot / Icon --}}
+                            <div class="w-4 h-4 rounded-full border-2 shrink-0 z-10 mt-0.5 flex items-center justify-center
+                                {{ $isFailed ? 'bg-rose-500 border-rose-500' : ($isDone ? 'bg-emerald-500 border-emerald-500' : ($isCurrent ? 'bg-orange-500 border-orange-500 shadow-sm shadow-orange-200' : 'bg-gray-100 border-gray-200')) }}">
+                                @if($isDone)
+                                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                @elseif($isFailed)
+                                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                @elseif($isCurrent)
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
                                 @endif
                             </div>
-                        @endforeach
-                    @endif
+
+                            {{-- Step Label & Info --}}
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold
+                                        {{ $isFailed ? 'text-rose-600 font-bold' : ($isCurrent ? 'text-orange-600 font-bold' : ($isDone ? 'text-gray-800' : 'text-gray-400')) }}">
+                                        {{ $stepData['label'] }}
+                                    </span>
+                                    @if($isCurrent)
+                                        <span class="text-[10px] text-orange-600 font-semibold bg-orange-50 border border-orange-200/60 px-1.5 py-0.5 rounded-full">
+                                            Sekarang
+                                        </span>
+                                    @elseif($isFailed)
+                                        <span class="text-[10px] text-rose-600 font-semibold bg-rose-50 border border-rose-200/60 px-1.5 py-0.5 rounded-full">
+                                            Ditolak
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
-                @if($permohonan->reviewed_at)
-                    <div class="mt-4 pt-3 border-t border-gray-100 text-[11px] text-gray-400">
-                        Terakhir diperbarui: <span class="font-medium text-gray-600">{{ \Carbon\Carbon::parse($permohonan->reviewed_at)->isoFormat('D MMM Y, HH:mm') }}</span>
-                        @if($permohonan->reviewer)
-                            <br>oleh <span class="font-medium text-gray-600">{{ $permohonan->reviewer->name }}</span>
+                @if($permohonan->reviewed_at || $permohonan->approved_at)
+                    <div class="mt-5 pt-3 border-t border-gray-100 text-[11px] text-gray-500 space-y-1">
+                        @if($permohonan->reviewed_at)
+                            <div>
+                                <span class="text-gray-400">Ditinjau Admin:</span>
+                                <span class="font-medium text-gray-700">{{ \Carbon\Carbon::parse($permohonan->reviewed_at)->isoFormat('D MMM Y, HH:mm') }}</span>
+                                @if($permohonan->reviewer)
+                                    <span class="text-gray-400">oleh</span> <span class="font-medium text-gray-700">{{ $permohonan->reviewer->name }}</span>
+                                @endif
+                            </div>
+                        @endif
+                        @if($permohonan->approved_at)
+                            <div>
+                                <span class="text-gray-400">Persetujuan Super Admin:</span>
+                                <span class="font-medium text-gray-700">{{ \Carbon\Carbon::parse($permohonan->approved_at)->isoFormat('D MMM Y, HH:mm') }}</span>
+                                @if($permohonan->approver)
+                                    <span class="text-gray-400">oleh</span> <span class="font-medium text-gray-700">{{ $permohonan->approver->name }}</span>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 @endif

@@ -87,6 +87,101 @@
             </a>
         </div>
     @else
+        {{-- Pipeline Verifikasi Berjenjang --}}
+        @php
+            $pSt = $permohonan->status;
+            // Tahap 1: Diajukan, Tahap 2: Ditinjau Admin, Tahap 3: Ditinjau Super Admin, Tahap 4: Keputusan Akhir
+            $pStep = match($pSt) {
+                'draft'             => 1,
+                'submitted'         => 2, // Berkas diajukan, sedang ditinjau Admin
+                'reviewed_by_admin' => 3, // Lolos admin, sedang ditinjau Super Admin
+                'approved'          => 4, // Disetujui
+                'rejected'          => ($permohonan->approved_by ? 3 : 2), // Ditolak di admin atau super admin
+                default             => 1,
+            };
+
+            $pipelineStages = [
+                1 => ['title' => 'Diajukan', 'desc' => 'Berkas pendaftaran masuk'],
+                2 => ['title' => 'Ditinjau Admin', 'desc' => 'Verifikasi kelayakan berkas'],
+                3 => ['title' => 'Ditinjau Super Admin', 'desc' => 'Evaluasi kelayakan akhir'],
+                4 => [
+                    'title' => $pSt === 'approved' ? 'Disetujui' : ($pSt === 'rejected' ? 'Ditolak' : 'Keputusan Akhir'),
+                    'desc'  => $pSt === 'approved' ? 'Resmi menjadi mahasiswa magang' : ($pSt === 'rejected' ? 'Permohonan tidak lolos' : 'Disetujui / Ditolak')
+                ],
+            ];
+        @endphp
+
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200/80 shadow-sm">
+            <div class="flex items-center justify-between pb-4 mb-6 border-b border-zinc-100">
+                <div>
+                    <span class="text-[10px] font-mono-tag uppercase tracking-widest text-zinc-400 block mb-0.5">// VERIFICATION PIPELINE</span>
+                    <h3 class="text-sm font-bold text-zinc-950 uppercase tracking-wide">Alur Tahapan Kurasi &amp; Persetujuan</h3>
+                </div>
+                <span class="text-[11px] font-mono-tag px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200">
+                    HIERARKI 2 TINGKAT
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 relative">
+                @foreach($pipelineStages as $sNum => $sData)
+                    @php
+                        $isPast = false;
+                        $isCur  = false;
+                        $isFail = false;
+
+                        if ($pSt === 'rejected') {
+                            if ($sNum < $pStep) {
+                                $isPast = true;
+                            } elseif ($sNum === $pStep) {
+                                $isFail = true;
+                            }
+                        } else {
+                            if ($sNum < $pStep) {
+                                $isPast = true;
+                            } elseif ($sNum === $pStep) {
+                                $isCur = true;
+                            }
+                        }
+                    @endphp
+
+                    <div class="p-4 rounded-2xl border transition-all flex flex-col justify-between
+                        {{ $isFail ? 'bg-rose-50/60 border-rose-200 text-rose-900' : ($isCur ? 'bg-blue-50/60 border-blue-200 text-blue-900 shadow-xs' : ($isPast ? 'bg-zinc-50 border-zinc-200/60 text-zinc-800' : 'bg-white border-zinc-100 text-zinc-400')) }}">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="w-6 h-6 rounded-lg text-xs font-mono-tag font-bold flex items-center justify-center
+                                    {{ $isFail ? 'bg-rose-600 text-white' : ($isCur ? 'bg-blue-600 text-white' : ($isPast ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-400')) }}">
+                                    @if($isPast)
+                                        ✓
+                                    @elseif($isFail)
+                                        ✕
+                                    @else
+                                        {{ $sNum }}
+                                    @endif
+                                </span>
+                                @if($isCur)
+                                    <span class="text-[9px] font-mono-tag uppercase font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                        Proses
+                                    </span>
+                                @elseif($isPast)
+                                    <span class="text-[9px] font-mono-tag uppercase font-bold text-emerald-600">
+                                        Selesai
+                                    </span>
+                                @elseif($isFail)
+                                    <span class="text-[9px] font-mono-tag uppercase font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
+                                        Gagal
+                                    </span>
+                                @endif
+                            </div>
+                            <h4 class="text-xs font-bold leading-snug">{{ $sData['title'] }}</h4>
+                            <p class="text-[11px] mt-1 leading-relaxed {{ $isCur || $isPast ? 'text-zinc-600' : 'text-zinc-400' }}">
+                                {{ $sData['desc'] }}
+                            </p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         {{-- Data Diri & Detail Magang Grid --}}
         <div class="grid md:grid-cols-2 gap-6">
             

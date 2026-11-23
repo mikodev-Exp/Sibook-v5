@@ -16,7 +16,7 @@ enum StatusPermohonan: string
         return match ($this) {
             self::Draft           => 'Draft',
             self::Submitted       => 'Menunggu Review Admin',
-            self::ReviewedByAdmin => 'Menunggu Approval Super User',
+            self::ReviewedByAdmin => 'Ditinjau Super Admin',
             self::Approved        => 'Disetujui',
             self::Rejected        => 'Ditolak',
             self::Cancelled       => 'Dibatalkan',

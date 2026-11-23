@@ -6,10 +6,12 @@ use App\Enums\StatusMagang;
 use App\Enums\StatusPermohonan;
 use App\Http\Controllers\Controller;
 use App\Models\PermohonanMagang;
+use App\Models\PermohonanDokumen;
 use App\Models\Magang;
 use App\Services\PersyaratanMagangService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PermohonanController extends Controller
 {
@@ -155,5 +157,23 @@ class PermohonanController extends Controller
             DB::rollBack();
             return back()->with('error', 'Gagal menolak: ' . $e->getMessage());
         }
+    }
+
+    public function dokumen(Request $request, PermohonanMagang $permohonan, PermohonanDokumen $dokumen)
+    {
+        abort_unless($dokumen->permohonan_id === $permohonan->id, 404);
+
+        $disk = Storage::disk('public');
+        abort_unless($disk->exists($dokumen->path), 404, 'Berkas dokumen tidak ditemukan di server.');
+
+        $fileName = $dokumen->nama_asli ?? basename($dokumen->path);
+
+        if ($request->boolean('download')) {
+            return $disk->download($dokumen->path, $fileName);
+        }
+
+        return $disk->response($dokumen->path, $fileName, [
+            'Content-Disposition' => 'inline; filename="' . addslashes($fileName) . '"',
+        ]);
     }
 }
