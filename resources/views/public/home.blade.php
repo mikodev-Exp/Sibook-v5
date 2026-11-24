@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth" data-theme="biru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,16 +36,92 @@
             mask-composite: exclude;
             pointer-events: none;
         }
+
+        /* ── Sistem 4 Warna Logo BPS (Oranye, Hijau, Biru, Noir) ── */
+        :root, [data-theme="biru"] {
+            --theme-primary: #0284C7; /* Biru BPS Resmi */
+            --theme-primary-hover: #0369A1;
+            --theme-primary-ring: rgba(2, 132, 199, 0.25);
+            --theme-soft: #F0F9FF;
+            --theme-border: #BAE6FD;
+            --theme-text: #0369A1;
+            --theme-gradient: linear-gradient(135deg, #38BDF8 0%, #0284C7 100%);
+            --theme-glow: rgba(2, 132, 199, 0.2);
+            --theme-dot: #0284C7;
+        }
+
+        [data-theme="oranye"] {
+            --theme-primary: #EA580C; /* Oranye BPS Sensus Sosial & Pertumbuhan */
+            --theme-primary-hover: #C2410C;
+            --theme-primary-ring: rgba(234, 88, 12, 0.25);
+            --theme-soft: #FFF7ED;
+            --theme-border: #FED7AA;
+            --theme-text: #C2410C;
+            --theme-gradient: linear-gradient(135deg, #FB923C 0%, #EA580C 100%);
+            --theme-glow: rgba(234, 88, 12, 0.2);
+            --theme-dot: #EA580C;
+        }
+
+        [data-theme="hijau"] {
+            --theme-primary: #16A34A; /* Hijau BPS Sensus Pertanian & Keberlanjutan */
+            --theme-primary-hover: #15803D;
+            --theme-primary-ring: rgba(22, 163, 74, 0.25);
+            --theme-soft: #F0FDF4;
+            --theme-border: #BBF7D0;
+            --theme-text: #15803D;
+            --theme-gradient: linear-gradient(135deg, #4ADE80 0%, #16A34A 100%);
+            --theme-glow: rgba(22, 163, 74, 0.2);
+            --theme-dot: #16A34A;
+        }
+
+        [data-theme="noir"] {
+            --theme-primary: #09090B; /* Monokrom Galeri Seni NFT Asli */
+            --theme-primary-hover: #27272A;
+            --theme-primary-ring: rgba(9, 9, 11, 0.25);
+            --theme-soft: #F4F4F5;
+            --theme-border: #E4E4E7;
+            --theme-text: #18181B;
+            --theme-gradient: linear-gradient(135deg, #27272A 0%, #09090B 100%);
+            --theme-glow: rgba(9, 9, 11, 0.2);
+            --theme-dot: #09090B;
+        }
+
+        .theme-btn-primary {
+            background-color: var(--theme-primary) !important;
+            color: #ffffff !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .theme-btn-primary:hover {
+            background-color: var(--theme-primary-hover) !important;
+            box-shadow: 0 4px 14px var(--theme-primary-ring);
+        }
+        .theme-accent-text {
+            color: var(--theme-primary) !important;
+        }
+        .theme-accent-soft {
+            background-color: var(--theme-soft) !important;
+            border-color: var(--theme-border) !important;
+            color: var(--theme-text) !important;
+        }
     </style>
 </head>
-<body class="bg-[#FAFAFA] text-[#09090B] flex flex-col min-h-screen antialiased selection:bg-zinc-900 selection:text-white">
+<body x-data="{
+    activeTheme: localStorage.getItem('sibook_theme') || 'biru',
+    setTheme(val) {
+        this.activeTheme = val;
+        localStorage.setItem('sibook_theme', val);
+        document.documentElement.setAttribute('data-theme', val);
+    }
+}" 
+x-init="setTheme(activeTheme)"
+class="bg-[#FAFAFA] text-[#09090B] flex flex-col min-h-screen antialiased selection:bg-zinc-900 selection:text-white">
 
     <!-- Top Navigation (Gallery Header) -->
     <header class="bg-white/80 backdrop-blur-md border-b border-zinc-200/80 sticky top-0 z-50 transition-all">
-        <div class="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 flex justify-between items-center gap-4">
             {{-- Brand Logo & Curator Desk --}}
             <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                <div class="w-9 h-9 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform">
+                <div class="w-9 h-9 rounded-xl theme-btn-primary text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-all">
                     SB
                 </div>
                 <div>
@@ -64,26 +140,67 @@
                 <a href="#fitur" class="hover:text-zinc-950 transition-colors">Fitur Studio</a>
             </div>
 
-            {{-- Auth Call-to-Action --}}
-            <nav class="flex items-center gap-3">
-                @auth
-                    <a href="{{ route('dashboard') }}" 
-                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-950 text-white hover:bg-zinc-800 transition-colors text-xs font-medium shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span>Masuk Dashboard</span>
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" 
-                       class="px-4 py-2 text-zinc-600 hover:text-zinc-950 font-medium text-xs transition-colors">
-                        Login
-                    </a>
-                    <a href="{{ route('pendaftar.register') }}" 
-                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-950 text-white hover:bg-zinc-800 transition-all text-xs font-medium shadow-sm hover:shadow">
-                        <span>Ajukan Magang</span>
-                        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
-                @endauth
-            </nav>
+            {{-- Controls: 4-Color BPS Theme Selector + Auth Actions --}}
+            <div class="flex items-center gap-3 sm:gap-4">
+                
+                {{-- 🎨 BPS 4-Color Theme Selector Pill in Header --}}
+                <div class="inline-flex items-center gap-1.5 p-1 rounded-full bg-zinc-100/90 border border-zinc-200 text-xs font-mono-tag shadow-2xs">
+                    <span class="text-[10px] text-zinc-400 font-bold px-1.5 hidden xl:inline">WARNA BPS:</span>
+                    
+                    {{-- 1. Oranye BPS --}}
+                    <button type="button" 
+                            @click="setTheme('oranye')" 
+                            :class="activeTheme === 'oranye' ? 'ring-2 ring-orange-500 ring-offset-1 scale-110 shadow-xs' : 'opacity-60 hover:opacity-100'"
+                            class="w-4.5 h-4.5 rounded-full bg-orange-600 transition-all cursor-pointer" 
+                            title="Warna Oranye BPS (Sensus Sosial & Dinamisme)">
+                    </button>
+                    
+                    {{-- 2. Hijau BPS --}}
+                    <button type="button" 
+                            @click="setTheme('hijau')" 
+                            :class="activeTheme === 'hijau' ? 'ring-2 ring-emerald-500 ring-offset-1 scale-110 shadow-xs' : 'opacity-60 hover:opacity-100'"
+                            class="w-4.5 h-4.5 rounded-full bg-emerald-600 transition-all cursor-pointer" 
+                            title="Warna Hijau BPS (Sensus Pertanian & Pertumbuhan)">
+                    </button>
+                    
+                    {{-- 3. Biru BPS --}}
+                    <button type="button" 
+                            @click="setTheme('biru')" 
+                            :class="activeTheme === 'biru' ? 'ring-2 ring-sky-500 ring-offset-1 scale-110 shadow-xs' : 'opacity-60 hover:opacity-100'"
+                            class="w-4.5 h-4.5 rounded-full bg-sky-600 transition-all cursor-pointer" 
+                            title="Warna Biru BPS (Statistik Resmi & Presisi Data)">
+                    </button>
+                    
+                    {{-- 4. Noir / Netral Galeri --}}
+                    <button type="button" 
+                            @click="setTheme('noir')" 
+                            :class="activeTheme === 'noir' ? 'ring-2 ring-zinc-950 ring-offset-1 scale-110 shadow-xs' : 'opacity-60 hover:opacity-100'"
+                            class="w-4.5 h-4.5 rounded-full bg-zinc-950 transition-all cursor-pointer" 
+                            title="Warna Noir Klasik (Monokrom Galeri Seni NFT)">
+                    </button>
+                </div>
+
+                {{-- Auth Call-to-Action --}}
+                <nav class="flex items-center gap-2.5">
+                    @auth
+                        <a href="{{ route('dashboard') }}" 
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl theme-btn-primary text-white text-xs font-medium shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                            <span>Masuk Dashboard</span>
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" 
+                           class="px-3.5 py-2 text-zinc-600 hover:text-zinc-950 font-medium text-xs transition-colors">
+                            Login
+                        </a>
+                        <a href="{{ route('pendaftar.register') }}" 
+                           class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl theme-btn-primary text-white text-xs font-medium shadow-sm hover:shadow">
+                            <span>Ajukan Magang</span>
+                            <svg class="w-3.5 h-3.5 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    @endauth
+                </nav>
+            </div>
         </div>
     </header>
 
@@ -98,13 +215,13 @@
                     
                     {{-- Text Column --}}
                     <div class="lg:col-span-7">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200/80 text-zinc-700 text-xs font-mono-tag mb-6">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full theme-accent-soft text-xs font-mono-tag mb-6 border transition-all">
+                            <span class="w-2 h-2 rounded-full animate-pulse" style="background-color: var(--theme-primary);"></span>
                             <span>OFFICIAL CURATED INTERNSHIP PROGRAM</span>
                         </div>
 
                         <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-zinc-950 tracking-tight leading-[1.08] mb-6">
-                            Pusat Eksplorasi Data & <span class="underline decoration-zinc-300 underline-offset-8">Talenta Statistik</span>
+                            Pusat Eksplorasi Data &amp; <span class="underline decoration-2 underline-offset-8 transition-colors" style="text-decoration-color: var(--theme-primary);">Talenta Statistik</span>
                         </h2>
 
                         <p class="text-base sm:text-lg text-zinc-500 max-w-xl leading-relaxed mb-8">
@@ -114,9 +231,9 @@
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             @guest
                                 <a href="{{ route('pendaftar.register') }}" 
-                                   class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-zinc-950 text-white rounded-xl hover:bg-zinc-800 transition-all font-semibold text-xs tracking-wide shadow-md hover:shadow-lg">
+                                   class="inline-flex items-center justify-center gap-2 px-6 py-3.5 theme-btn-primary text-white rounded-xl transition-all font-semibold text-xs tracking-wide shadow-md hover:shadow-lg">
                                     <span>Ajukan Permohonan Sekarang</span>
-                                    <span class="font-mono-tag text-[11px] text-zinc-400">[PASS #MINT]</span>
+                                    <span class="font-mono-tag text-[11px] text-white/80">[PASS #MINT]</span>
                                 </a>
                             @endguest
                             <a href="#kuota-magang" 
@@ -139,11 +256,12 @@
                             </div>
                             <div class="h-6 w-px bg-zinc-200"></div>
                             <div>
-                                <span class="block text-emerald-600 font-bold text-sm">TRANSPARAN</span>
+                                <span class="block font-bold text-sm theme-accent-text">TRANSPARAN</span>
                                 <span>KUOTA REAL-TIME</span>
                             </div>
                         </div>
                     </div>
+
                     {{-- Visual Exhibition Placard Column with Curated Artwork --}}
                     <div class="lg:col-span-5 relative">
                         <div class="relative bg-zinc-950 rounded-3xl p-3 border border-zinc-800 shadow-2xl overflow-hidden group">
@@ -202,7 +320,7 @@
                             <span>// COLLECTION OVERVIEW</span>
                         </div>
                         <h3 class="text-3xl lg:text-4xl font-extrabold text-zinc-950 tracking-tight">
-                            Persyaratan & <span class="text-zinc-500 font-light">Alokasi Kuota</span> Magang
+                            Persyaratan &amp; <span class="text-zinc-500 font-light">Alokasi Kuota</span> Magang
                         </h3>
                     </div>
                     <p class="text-xs text-zinc-500 font-mono-tag max-w-sm">
@@ -215,8 +333,9 @@
 
                     {{-- ── 1. Kartu Utama: Total Slot & Status (Hero Placard - 2 Col) ── --}}
                     <div class="lg:col-span-2 bg-zinc-950 text-white rounded-3xl p-8 sm:p-10 relative overflow-hidden shadow-2xl flex flex-col justify-between border border-zinc-800 group">
-                        {{-- Ambient Art Lighting --}}
-                        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+                        {{-- Ambient Art Lighting (Dynamic Glow with Theme) --}}
+                        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-700"
+                             style="background: var(--theme-gradient); opacity: 0.18;"></div>
 
                         <div>
                             {{-- Header Kartu: Status Badge & Logo BPS --}}
@@ -283,9 +402,9 @@
                                 <span>{{ $requirementData['total_percentage'] ?? 0 }}% terisi</span>
                             </div>
                             <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden p-0.5">
-                                <div class="bg-white h-full rounded-full transition-all duration-1000 ease-out progress-bar-animated"
+                                <div class="h-full rounded-full transition-all duration-1000 ease-out progress-bar-animated"
                                      data-width="{{ $requirementData['total_percentage'] ?? 0 }}%"
-                                     style="width: 0%"></div>
+                                     style="width: 0%; background-color: var(--theme-primary);"></div>
                             </div>
                         </div>
                     </div>
@@ -294,7 +413,7 @@
                     <div class="bg-white rounded-3xl p-8 border border-zinc-200/80 shadow-sm flex flex-col justify-between hover:border-zinc-300 transition-all duration-300">
                         <div>
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-zinc-100">
-                                <div class="w-9 h-9 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-xs font-bold shrink-0">
+                                <div class="w-9 h-9 rounded-xl theme-btn-primary text-white flex items-center justify-center font-mono-tag text-xs font-bold shrink-0">
                                     01
                                 </div>
                                 <div>
@@ -307,7 +426,7 @@
                             <ul class="space-y-3.5">
                                 @forelse($requirementData['requirements'] ?? [] as $req)
                                     <li class="flex items-start gap-2.5 text-xs text-zinc-700 leading-relaxed">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-950 mt-1.5 shrink-0"></span>
+                                        <span class="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style="background-color: var(--theme-primary);"></span>
                                         <span>{{ $req }}</span>
                                     </li>
                                 @empty
@@ -349,7 +468,7 @@
                             $barClass = match($statusColor) {
                                 'red'    => 'bg-rose-500',
                                 'yellow' => 'bg-amber-500',
-                                default  => 'bg-zinc-950',
+                                default  => 'theme-btn-primary',
                             };
 
                             $majors = is_array($grp->majors ?? null) ? $grp->majors : ($grp->majors ?? []);
@@ -404,7 +523,7 @@
                                         $activeDots = $quota > 0 ? round(($active / $quota) * $displayDots) : 0;
                                     @endphp
                                     @for($i = 0; $i < $displayDots; $i++)
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $i < $activeDots ? 'bg-zinc-300' : 'bg-zinc-950' }}"
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $i < $activeDots ? 'bg-zinc-300' : 'theme-accent-bg' }}"
                                               title="{{ $i < $activeDots ? 'Terisi' : 'Tersedia' }}"></span>
                                     @endfor
                                     @if($quota > 20)
@@ -468,7 +587,7 @@
                         <div class="inline-flex items-center gap-2 text-xs font-mono-tag text-zinc-400 uppercase tracking-widest mb-2">
                             <span>// INTAKE PROTOCOL</span>
                         </div>
-                        <h3 class="text-3xl font-extrabold text-zinc-950 tracking-tight">Alur Pengajuan & Kurasi</h3>
+                        <h3 class="text-3xl font-extrabold text-zinc-950 tracking-tight">Alur Pengajuan &amp; Kurasi</h3>
                     </div>
                     <p class="text-xs text-zinc-500 font-mono-tag max-w-sm">
                         Empat tahapan terstruktur dari registrasi hingga penetapan resmi mahasiswa magang aktif.
@@ -479,7 +598,7 @@
                     <!-- Step 1 -->
                     <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
                         <div>
-                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                            <div class="w-10 h-10 rounded-xl theme-btn-primary text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5 shadow-xs">
                                 01
                             </div>
                             <h4 class="text-base font-bold text-zinc-950 mb-2">Registrasi Akun</h4>
@@ -490,7 +609,7 @@
                     <!-- Step 2 -->
                     <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
                         <div>
-                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                            <div class="w-10 h-10 rounded-xl theme-btn-primary text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5 shadow-xs">
                                 02
                             </div>
                             <h4 class="text-base font-bold text-zinc-950 mb-2">Upload Dokumen</h4>
@@ -501,7 +620,7 @@
                     <!-- Step 3 -->
                     <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
                         <div>
-                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                            <div class="w-10 h-10 rounded-xl theme-btn-primary text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5 shadow-xs">
                                 03
                             </div>
                             <h4 class="text-base font-bold text-zinc-950 mb-2">Kurasi Berkas</h4>
@@ -512,10 +631,10 @@
                     <!-- Step 4 -->
                     <div class="bg-zinc-50/70 p-7 rounded-3xl border border-zinc-200/80 hover:border-zinc-400 transition-all flex flex-col justify-between">
                         <div>
-                            <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5">
+                            <div class="w-10 h-10 rounded-xl theme-btn-primary text-white flex items-center justify-center font-mono-tag text-sm font-bold mb-5 shadow-xs">
                                 04
                             </div>
-                            <h4 class="text-base font-bold text-zinc-950 mb-2">Whitelist & Masuk</h4>
+                            <h4 class="text-base font-bold text-zinc-950 mb-2">Whitelist &amp; Masuk</h4>
                             <p class="text-xs text-zinc-500 leading-relaxed">Persetujuan akhir membuka akses penuh akun sebagai Mahasiswa Magang di Artist Studio.</p>
                         </div>
                         <div class="mt-6 pt-3 border-t border-zinc-200/60 font-mono-tag text-[10px] text-zinc-400 uppercase">STAGE: ADMISSION</div>
@@ -542,7 +661,7 @@
                 <div class="grid md:grid-cols-3 gap-8">
                     <!-- Fitur 1 -->
                     <div class="p-8 bg-white rounded-3xl border border-zinc-200/80 shadow-sm hover:border-zinc-400 transition-all">
-                        <div class="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                        <div class="w-12 h-12 theme-btn-primary text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                         <h4 class="text-lg font-bold text-zinc-950 mb-2">Presensi Geolocation</h4>
@@ -550,7 +669,7 @@
                     </div>
                     <!-- Fitur 2 -->
                     <div class="p-8 bg-white rounded-3xl border border-zinc-200/80 shadow-sm hover:border-zinc-400 transition-all">
-                        <div class="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                        <div class="w-12 h-12 theme-btn-primary text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
                         <h4 class="text-lg font-bold text-zinc-950 mb-2">Logbook Karya Digital</h4>
@@ -558,7 +677,7 @@
                     </div>
                     <!-- Fitur 3 -->
                     <div class="p-8 bg-white rounded-3xl border border-zinc-200/80 shadow-sm hover:border-zinc-400 transition-all">
-                        <div class="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                        <div class="w-12 h-12 theme-btn-primary text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
                         <h4 class="text-lg font-bold text-zinc-950 mb-2">Absence Pass (Perizinan)</h4>
@@ -573,7 +692,7 @@
     <footer class="bg-zinc-950 text-zinc-400 py-16 border-t border-zinc-800 font-mono-tag text-xs">
         <div class="max-w-7xl mx-auto px-6 sm:px-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white text-zinc-950 rounded-lg flex items-center justify-center font-bold text-xs">
+                <div class="w-8 h-8 theme-btn-primary text-white rounded-lg flex items-center justify-center font-bold text-xs">
                     SB
                 </div>
                 <div>
@@ -594,6 +713,50 @@
             </div>
         </div>
     </footer>
+
+    {{-- Floating Quick BPS Color Palette Switcher Dock (Selalu mudah diakses di HP & Desktop) --}}
+    <div class="fixed bottom-5 right-5 z-40 bg-white/95 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-zinc-200/90 shadow-xl flex items-center gap-1.5 sm:gap-2 font-mono-tag text-xs transition-all">
+        <div class="flex items-center gap-1.5 px-2 py-1 text-[11px] text-zinc-500 font-bold uppercase hidden sm:flex">
+            <span>🎨</span>
+            <span>Palet BPS:</span>
+        </div>
+        
+        {{-- Button 1: Oranye --}}
+        <button type="button" 
+                @click="setTheme('oranye')"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition cursor-pointer"
+                :class="activeTheme === 'oranye' ? 'bg-orange-50 text-orange-800 border border-orange-300 font-bold shadow-xs' : 'text-zinc-600 hover:bg-zinc-100'">
+            <span class="w-3 h-3 rounded-full bg-orange-600 shadow-2xs"></span>
+            <span>Oranye</span>
+        </button>
+
+        {{-- Button 2: Hijau --}}
+        <button type="button" 
+                @click="setTheme('hijau')"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition cursor-pointer"
+                :class="activeTheme === 'hijau' ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold shadow-xs' : 'text-zinc-600 hover:bg-zinc-100'">
+            <span class="w-3 h-3 rounded-full bg-emerald-600 shadow-2xs"></span>
+            <span>Hijau</span>
+        </button>
+
+        {{-- Button 3: Biru --}}
+        <button type="button" 
+                @click="setTheme('biru')"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition cursor-pointer"
+                :class="activeTheme === 'biru' ? 'bg-sky-50 text-sky-800 border border-sky-300 font-bold shadow-xs' : 'text-zinc-600 hover:bg-zinc-100'">
+            <span class="w-3 h-3 rounded-full bg-sky-600 shadow-2xs"></span>
+            <span>Biru</span>
+        </button>
+
+        {{-- Button 4: Noir --}}
+        <button type="button" 
+                @click="setTheme('noir')"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition cursor-pointer"
+                :class="activeTheme === 'noir' ? 'bg-zinc-100 text-zinc-950 border border-zinc-300 font-bold shadow-xs' : 'text-zinc-600 hover:bg-zinc-100'">
+            <span class="w-3 h-3 rounded-full bg-zinc-950 shadow-2xs"></span>
+            <span>Noir</span>
+        </button>
+    </div>
 
     {{-- Script Animasi Count-Up & Progress Bar (IntersectionObserver) --}}
     <script>
