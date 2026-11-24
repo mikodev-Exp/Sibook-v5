@@ -25,7 +25,15 @@ class LogbookController extends Controller
             ->orderBy('tanggal', 'desc')
             ->paginate(10);
 
-        return view('mahasiswa.logbook.index', compact('totalLogbook', 'selesai', 'belumSelesai', 'riwayat'));
+        // Ambil seluruh draf proyek tertunda untuk modal "Lanjutkan Proyek"
+        $drafts = $user->logbooks()
+            ->where('status', 'draft')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        $sudahBuatHariIni = $user->logbooks()->where('tanggal', today())->exists();
+
+        return view('mahasiswa.logbook.index', compact('totalLogbook', 'selesai', 'belumSelesai', 'riwayat', 'drafts', 'sudahBuatHariIni'));
     }
 
     public function create(Request $request)
@@ -58,7 +66,7 @@ class LogbookController extends Controller
             'jam_selesai' => 'nullable|required_if:is_selesai,1',
             'kegiatan' => 'required|string|max:255',
             'deskripsi' => 'required|string',
-            'link_bukti' => 'required|url',
+            'link_bukti' => 'required|url|max:2048',
             'is_selesai' => 'required|boolean'
         ]);
 
@@ -111,7 +119,7 @@ class LogbookController extends Controller
             'jam_selesai' => 'nullable|required_if:is_selesai,1',
             'kegiatan' => 'required|string|max:255',
             'deskripsi' => 'required|string',
-            'link_bukti' => 'required|url',
+            'link_bukti' => 'required|url|max:2048',
             'is_selesai' => 'required|boolean'
         ]);
 
